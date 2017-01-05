@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="mihome"
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <thing-type id="gateway">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge"/>
+        </supported-bridge-type-refs>
+
+        <label>Xiaomi Mi Smart Home Gateway</label>
+        <description>Multifunctional Gateway. One button click turns on/off the device. Two clicks toggle "home security" feature. 
+        Three button clicks allow you to link the Xiaomi Zigbee devices with the Gateway. After you press the button 3 times, the light will flash blue;
+        After that you'll be able to add new sensors by pressing their hole button for 3 seconds.
+        </description>
+
+        <channels>
+            <channel id="brightness" typeId="brightness"/>
+            <channel id="color" typeId="color"/>
+            <channel id="colorTemperature" typeId="colorTemperature"/>
+        </channels>
+
+        <config-description>
+            <parameter name="itemId" type="text" readOnly="true">
+                <label>Item ID</label>
+                <description>An identifier for the item connected.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+
+    <channel-type id="brightness">
+        <item-type>Dimmer</item-type>
+        <label>Brightness</label>
+        <description>
+            The brightness channel allows to control the brightness of a light.
+            It is also possible to switch the light on and off.
+        </description>
+        <category>DimmableLight</category>
+        <tags>
+            <tag>Lighting</tag>
+        </tags>
+    </channel-type>
+
+    <channel-type id="color">
+        <item-type>Color</item-type>
+        <label>Color</label>
+        <description>Control the color of light.</description>
+        <category>ColorLight</category>
+        <tags>
+            <tag>Lighting</tag>
+        </tags>
+    </channel-type>
+
+    <channel-type id="colorTemperature">
+        <item-type>Dimmer</item-type>
+        <label>Color Temperature</label>
+        <description>Allows to control the color temperature of light.</description>
+        <category>DimmableCT</category>
+        <tags>
+            <tag>ColorTemperature</tag>
+        </tags>
+    </channel-type>
+
+</thing:thing-descriptions>
