@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="mihome" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="ctrl_ln1">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="bridge" />
+		</supported-bridge-type-refs>
+
+		<label>Xiaomi "zero-fire" 1 Channel Wall Switch</label>
+		<description>New, yet unconfirmed device</description>
+
+		<channels>
+			<channel id="ch1" typeId="sw1-btn" />
+		</channels>
+
+		<config-description>
+			<parameter name="itemId" type="text" readOnly="true">
+				<label>Item ID</label>
+				<description>An identifier for the item connected.</description>
+				<required>true</required>
+			</parameter>
+		</config-description>
+	</thing-type>
+</thing:thing-descriptions>
