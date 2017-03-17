@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="mihome"
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <!-- Xiaomi Mi Smart Home Bridge -->
+    <bridge-type id="bridge">
+        <label>Xiaomi Mi Smart Home Bridge</label>
+        <description>Multifunctional Gateway - a bridge for the sensors. One button click turns on/off the device. Two clicks toggle "home security" feature. 
+        Three button clicks allow you to link the Xiaomi Zigbee devices with the Gateway. After you press the button 3 times, the light will flash blue;
+        After that you'll be able to add new sensors by pressing their hole button for 3 seconds.</description>
+
+        <properties>
+            <property name="vendor">Xiaomi</property>
+        </properties>
+
+        <config-description>
+            <parameter name="serialNumber" type="text" readOnly="true">
+                <label>Serial Number</label>
+                <description>Serial number of the Xiaomi bridge.</description>
+                <required>true</required>
+            </parameter>
+            
+            <parameter name="ipAddress" type="text" readOnly="true">
+                <context>network_address</context>
+                <label>Network Address</label>
+                <description>Network address of the Xiaomi bridge.</description>
+                <required>true</required>
+            </parameter>
+            
+            <parameter name="port" type="integer" readOnly="true">
+                <context>network_address</context>
+                <label>Port</label>
+                <description>Port of the Xiaomi bridge.</description>
+                <required>true</required>
+                <default>9898</default>
+            </parameter>
+            
+            <parameter name="key" type="text">
+                <context>password</context>
+                <label>Developer Key</label>
+                <description>
+                    Developer key that allows writing values.
+                </description>
+                <required>false</required>
+            </parameter>
+            
+            <parameter name="pollingInterval" type="integer" min="1" step="1">
+                <label>Polling Interval</label>
+                <description>Seconds between fetching values from the Bridge.</description>
+                <required>true</required>
+                <default>10</default>
+            </parameter>
+        </config-description>
+    </bridge-type>
+</thing:thing-descriptions>

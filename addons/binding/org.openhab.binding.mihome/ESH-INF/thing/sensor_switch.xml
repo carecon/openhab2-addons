@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="mihome" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="sensor_switch">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="bridge" />
+		</supported-bridge-type-refs>
+
+		<label>Xiaomi Mi Wireless Switch</label>
+		<description>Round-shaped mini wireless switch that allows to trigger three types of event: single click, double click and long click.</description>
+
+		<channels>
+			<channel id="button" typeId="button" />
+			<channel id="voltage" typeId="voltage" />
+			<channel id="batteryLevel" typeId="batteryLevel" />
+		</channels>
+
+		<config-description>
+			<parameter name="itemId" type="text" readOnly="true">
+				<label>Item ID</label>
+				<description>An identifier for the item connected.</description>
+				<required>true</required>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+	<channel-type id="button">
+		<kind>trigger</kind>
+		<label>Button Event</label>
+		<event>
+			<options>
+				<option value="CLICK">click</option>
+				<option value="DOUBLE_CLICK">double click</option>
+				<option value="LONG_CLICK_PRESS">long click press</option>
+				<option value="LONG_CLICK_RELEASE">long click release</option>
+			</options>
+		</event>
+	</channel-type>
+
+	<channel-type id="voltage" advanced="true">
+		<item-type>Number</item-type>
+		<label>Battery Voltage</label>
+		<category>Battery Voltage</category>
+		<state pattern="%d mv" readOnly="true"></state>
+	</channel-type>
+
+	<channel-type id="batteryLevel" advanced="true">
+		<kind>trigger</kind>
+		<label>Low Battery Level</label>
+		<description>Triggers LOW event when voltage is below 2800 mv</description>
+		<event>
+			<options>
+				<option value="LOW">low</option>
+			</options>
+		</event>
+	</channel-type>
+
+</thing:thing-descriptions>

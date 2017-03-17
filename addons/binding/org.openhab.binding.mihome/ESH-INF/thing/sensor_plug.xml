@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="mihome" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="sensor_plug">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="bridge" />
+		</supported-bridge-type-refs>
+
+		<label>Xiaomi Mi Smart Socket Plug</label>
+		<description>Allows you to enable or disable the socket, read voltage, current and power consumption.</description>
+
+		<channels>
+			<channel id="powerOn" typeId="powerOn" />
+			<channel id="loadVoltage" typeId="loadVoltage" />
+			<channel id="loadPower" typeId="loadPower" />
+			<channel id="powerConsumed" typeId="powerConsumed" />
+		</channels>
+
+		<config-description>
+			<parameter name="itemId" type="text" readOnly="true">
+				<label>Item ID</label>
+				<description>An identifier for the item connected.</description>
+				<required>true</required>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+	<channel-type id="powerOn">
+		<item-type>Switch</item-type>
+		<label>Power On/Off</label>
+		<category>PowerOutlet</category>
+	</channel-type>
+	
+	<channel-type id="loadVoltage">
+		<item-type>Number</item-type>
+		<label>Load Voltage</label>
+		<state pattern="%d" readOnly="true"></state>
+	</channel-type>
+	
+	<channel-type id="loadPower">
+		<item-type>Number</item-type>
+		<label>Load Power</label>
+		<state pattern="%.2f" readOnly="true"></state>
+	</channel-type>
+
+	<channel-type id="powerConsumed">
+		<item-type>Number</item-type>
+		<label>Power Consumed</label>
+		<state pattern="%.2f" readOnly="true"></state>
+	</channel-type>
+	
+</thing:thing-descriptions>
