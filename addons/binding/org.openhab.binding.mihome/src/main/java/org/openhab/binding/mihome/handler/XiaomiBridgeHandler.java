@@ -327,6 +327,12 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
         updateStatus(isGatewayOnline() ? ThingStatus.ONLINE : ThingStatus.OFFLINE);
     }
 
+    void updateDeviceStatus(String sid) {
+        if (sid != null) {
+            lastOnlineMap.put(sid, System.currentTimeMillis());
+        }
+    }
+
     private boolean isGatewayOnline() {
         return hasItemActivity(getGatewaySid(), ONLINE_TIMEOUT);
     }
