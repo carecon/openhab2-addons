@@ -53,7 +53,7 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
             Arrays.asList(THING_TYPE_GATEWAY, THING_TYPE_SENSOR_HT, THING_TYPE_SENSOR_MOTION, THING_TYPE_SENSOR_SWITCH,
                     THING_TYPE_SENSOR_MAGNET, THING_TYPE_SENSOR_PLUG, THING_TYPE_SENSOR_CUBE));
 
-    private static final long ONLINE_TIMEOUT = 24 * 60 * 60 * 1000;
+    private static final long ONLINE_TIMEOUT = 2 * 60 * 60 * 1000;
 
     private JsonParser parser = new JsonParser();
 
@@ -179,85 +179,89 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
         if (itemId != null && itemId.equals(sid)) {
             updateItemStatus();
             logger.debug("Item got update: {}", message.toString());
-
-            JsonObject data = parser.parse(message.get("data").getAsString()).getAsJsonObject();
-            String model = message.get("model").getAsString();
-            switch (model) {
-                case "sensor_ht":
-                    if (data.get("humidity") != null) {
-                        float humidity = data.get("humidity").getAsFloat() / 100;
-                        updateState(CHANNEL_HUMIDITY, new DecimalType(humidity));
-                    }
-                    if (data.get("temperature") != null) {
-                        float temperature = data.get("temperature").getAsFloat() / 100;
-                        updateState(CHANNEL_TEMPERATURE, new DecimalType(temperature));
-                    }
-                    if (data.get("voltage") != null) {
-                        Integer voltage = data.get("voltage").getAsInt();
-                        updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
-                    }
-                    break;
-                case "motion":
-                    boolean hasMotion = data.has("status") && data.get("status").getAsString().equals("motion");
-                    updateState(CHANNEL_MOTION, hasMotion ? OnOffType.ON : OnOffType.OFF);
-                    if (hasMotion) {
-                        updateState(CHANNEL_LAST_MOTION, new DateTimeType());
-                    }
-                    break;
-                case "switch":
-                    if (data.has("status")) {
-                        triggerChannel("button", data.get("status").getAsString().toUpperCase());
-                    }
-                    break;
-                case "magnet":
-                    if (data.has("status")) {
-                        boolean isOpen = !data.get("status").getAsString().equals("close");
-                        updateState(CHANNEL_IS_OPEN, isOpen ? OpenClosedType.OPEN : OpenClosedType.CLOSED);
-                    }
-                    break;
-                case "plug":
-                    if (data.has("status")) {
-                        boolean isOn = data.get("status").getAsString().equals("on");
-                        updateState(CHANNEL_POWER_ON, isOn ? OnOffType.ON : OnOffType.OFF);
-                    }
-                    if (data.has("load_voltage")) {
-                        updateState(CHANNEL_LOAD_VOLTAGE, new DecimalType(data.get("load_voltage").getAsBigDecimal()));
-                    }
-                    if (data.has("load_power")) {
-                        updateState(CHANNEL_LOAD_POWER, new DecimalType(data.get("load_power").getAsBigDecimal()));
-                    }
-                    if (data.has("power_consumed")) {
-                        updateState(CHANNEL_POWER_CONSUMED,
-                                new DecimalType(data.get("power_consumed").getAsBigDecimal()));
-                    }
-                    break;
-                case "gateway":
-                    if (data.has("rgb")) {
-                        long rgb = data.get("rgb").getAsLong();
-                        updateState(CHANNEL_BRIGHTNESS,
-                                new PercentType((int) (((rgb / 256 / 256 / 256) & 0xff) / 2.55)));
-                        updateState(CHANNEL_COLOR, HSBType.fromRGB((int) (rgb / 256 / 256) & 0xff,
-                                (int) (rgb / 256) & 0xff, (int) rgb & 0xff));
-                    }
-                    break;
-                case "cube":
-                    logger.debug("Cube data: {}", data);
-                    if (data.has("status")) {
-                        triggerChannel("action", data.get("status").getAsString().toUpperCase());
-                    } else if (data.has("rotate")) {
-                        boolean isRotateLeft = data.get("status").getAsString().startsWith("-");
-                        triggerChannel("action", isRotateLeft ? "ROTATE_LEFT" : "ROTATE_RIGHT");
-                    }
-                    break;
-            }
-
-            if (data.get("voltage") != null) {
-                Integer voltage = data.get("voltage").getAsInt();
-                updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
-
-                if (voltage < 2800) {
-                    triggerChannel("batteryLevel", "LOW");
+            if (message.get("cmd").getAsString().equals("report")) {
+                JsonObject data = parser.parse(message.get("data").getAsString()).getAsJsonObject();
+                String model = message.get("model").getAsString();
+                switch (model) {
+                    case "sensor_ht":
+                        if (data.get("humidity") != null) {
+                            float humidity = data.get("humidity").getAsFloat() / 100;
+                            updateState(CHANNEL_HUMIDITY, new DecimalType(humidity));
+                        }
+                        if (data.get("temperature") != null) {
+                            float temperature = data.get("temperature").getAsFloat() / 100;
+                            updateState(CHANNEL_TEMPERATURE, new DecimalType(temperature));
+                        }
+                        if (data.get("voltage") != null) {
+                            Integer voltage = data.get("voltage").getAsInt();
+                            updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
+                        }
+                        break;
+                    case "motion":
+                        boolean hasMotion = data.has("status") && data.get("status").getAsString().equals("motion");
+                        updateState(CHANNEL_MOTION, hasMotion ? OnOffType.ON : OnOffType.OFF);
+                        if (hasMotion) {
+                            updateState(CHANNEL_LAST_MOTION, new DateTimeType());
+                        }
+                        break;
+                    case "switch":
+                        if (data.has("status")) {
+                            triggerChannel("button", data.get("status").getAsString().toUpperCase());
+                        }
+                        break;
+                    case "magnet":
+                        if (data.has("status")) {
+                            boolean isOpen = !data.get("status").getAsString().equals("close");
+                            updateState(CHANNEL_IS_OPEN, isOpen ? OpenClosedType.OPEN : OpenClosedType.CLOSED);
+                        }
+                        break;
+                    case "plug":
+                        if (data.has("status")) {
+                            boolean isOn = data.get("status").getAsString().equals("on");
+                            updateState(CHANNEL_POWER_ON, isOn ? OnOffType.ON : OnOffType.OFF);
+                        }
+                        if (data.has("load_voltage")) {
+                            updateState(CHANNEL_LOAD_VOLTAGE,
+                                    new DecimalType(data.get("load_voltage").getAsBigDecimal()));
+                        }
+                        if (data.has("load_power")) {
+                            updateState(CHANNEL_LOAD_POWER, new DecimalType(data.get("load_power").getAsBigDecimal()));
+                        }
+                        if (data.has("power_consumed")) {
+                            updateState(CHANNEL_POWER_CONSUMED,
+                                    new DecimalType(data.get("power_consumed").getAsBigDecimal()));
+                        }
+                        break;
+                    case "gateway":
+                        if (data.has("rgb")) {
+                            long rgb = data.get("rgb").getAsLong();
+                            updateState(CHANNEL_BRIGHTNESS,
+                                    new PercentType((int) (((rgb / 256 / 256 / 256) & 0xff) / 2.55)));
+                            updateState(CHANNEL_COLOR, HSBType.fromRGB((int) (rgb / 256 / 256) & 0xff,
+                                    (int) (rgb / 256) & 0xff, (int) rgb & 0xff));
+                        }
+                        break;
+                    case "cube":
+                        logger.debug("Cube data: {}", data);
+                        if (data.has("status")) {
+                            triggerChannel("action", data.get("status").getAsString().toUpperCase());
+                        } else if (data.has("rotate")) {
+                            boolean isRotateLeft = data.get("status").getAsString().startsWith("-");
+                            triggerChannel("action", isRotateLeft ? "ROTATE_LEFT" : "ROTATE_RIGHT");
+                        }
+                        break;
                 }
+
+                if (data.get("voltage") != null) {
+                    Integer voltage = data.get("voltage").getAsInt();
+                    updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
+
+                    if (voltage < 2800) {
+                        triggerChannel("batteryLevel", "LOW");
+                    }
+                }
+            } else if (message.get("cmd").getAsString().equals("heartbeat")) {
+                getXiaomiBridgeHandler().updateDeviceStatus(itemId);
             }
         }
     }
