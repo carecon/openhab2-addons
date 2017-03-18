@@ -242,14 +242,18 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                         }
                         break;
                     case "cube":
-                        logger.debug("Cube data: {}", data);
+                        logger.debug("Cube data: {}", data.toString());
                         if (data.has("status")) {
-                            triggerChannel("action", data.get("status").getAsString().toUpperCase());
+                            triggerChannel(CHANNEL_CUBE_ACTION, data.get("status").getAsString().toUpperCase());
                         } else if (data.has("rotate")) {
-                            boolean isRotateLeft = data.get("status").getAsString().startsWith("-");
-                            triggerChannel("action", isRotateLeft ? "ROTATE_LEFT" : "ROTATE_RIGHT");
+                            Integer rot = Integer.parseInt((data.get("rotate").getAsString().split(";")[0]));
+                            triggerChannel(CHANNEL_CUBE_ACTION, rot < 0 ? "ROTATE_LEFT" : "ROTATE_RIGHT");
+                            updateState(CHANNEL_CUBE_ROTATION, new DecimalType(rot));
                         }
                         break;
+                    default:
+                        logger.warn("detected message from unknown model: {}", model);
+                        logger.warn("message data from unknown model: {}", data.toString());
                 }
 
                 if (data.get("voltage") != null) {
