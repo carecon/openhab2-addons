@@ -56,5 +56,6 @@ public class XiaomiGatewayBindingConstants {
 
     // Item config properties
     public static final String ITEM_ID = "itemId";
+    public static final String NO_MOTION = "noMotionAfter";
 
 }

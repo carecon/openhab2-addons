@@ -199,9 +199,15 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                         break;
                     case "motion":
                         boolean hasMotion = data.has("status") && data.get("status").getAsString().equals("motion");
-                        updateState(CHANNEL_MOTION, hasMotion ? OnOffType.ON : OnOffType.OFF);
                         if (hasMotion) {
+                            updateState(CHANNEL_MOTION, OnOffType.ON);
                             updateState(CHANNEL_LAST_MOTION, new DateTimeType());
+                        }
+                        if (data.has("no_motion")) {
+                            Integer noMotionAfter = Integer.parseInt(getConfig().get(NO_MOTION).toString());
+                            if (data.get("no_motion").getAsInt() == noMotionAfter) {
+                                updateState(CHANNEL_MOTION, OnOffType.OFF);
+                            }
                         }
                         break;
                     case "switch":
