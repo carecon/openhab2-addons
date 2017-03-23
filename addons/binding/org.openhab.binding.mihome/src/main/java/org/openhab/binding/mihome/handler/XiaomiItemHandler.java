@@ -252,7 +252,12 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                         if (data.has("status")) {
                             triggerChannel(CHANNEL_CUBE_ACTION, data.get("status").getAsString().toUpperCase());
                         } else if (data.has("rotate")) {
-                            Integer rot = Integer.parseInt((data.get("rotate").getAsString().split(";")[0]));
+                            Integer rot = 0;
+                            try {
+                                rot = Integer.parseInt((data.get("rotate").getAsString().split(",")[0]));
+                            } catch (NumberFormatException e) {
+                                logger.error("Could not parse rotation angle", e);
+                            }
                             triggerChannel(CHANNEL_CUBE_ACTION, rot < 0 ? "ROTATE_LEFT" : "ROTATE_RIGHT");
                             updateState(CHANNEL_CUBE_ROTATION, new DecimalType(rot));
                         }
