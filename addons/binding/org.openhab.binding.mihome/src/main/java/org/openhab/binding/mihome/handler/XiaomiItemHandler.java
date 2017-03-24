@@ -68,22 +68,16 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
 
     @Override
     public void initialize() {
-        initializeThing();
-
+        final String configItemId = (String) getConfig().get(ITEM_ID);
+        if (configItemId != null) {
+            itemId = configItemId;
+        }
         scheduler.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 updateItemStatus();
             }
-        }, 1, 60, TimeUnit.SECONDS);
-    }
-
-    private void initializeThing() {
-        final String configItemId = (String) getConfig().get(ITEM_ID);
-        if (configItemId != null) {
-            itemId = configItemId;
-        }
-        updateItemStatus();
+        }, 200, 5000, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -114,7 +108,7 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                 } else if (command instanceof OnOffType) {
                     writeBridgeLightColor(getGatewayLightColor(), command == OnOffType.ON ? 1 : 0);
                 } else {
-                    logger.error("Can't handle command " + command);
+                    logger.error("Can't handle command {}", command);
                 }
                 break;
             case CHANNEL_COLOR:
