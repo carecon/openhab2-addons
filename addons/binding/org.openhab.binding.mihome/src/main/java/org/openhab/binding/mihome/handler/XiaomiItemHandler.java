@@ -97,6 +97,10 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
     public void handleCommand(ChannelUID channelUID, Command command) {
         // TODO somehow it seems that this is called as well with LAST KNOWN STATE when openhab gets started. Can this
         // be turned off somehow?
+        logger.debug("Device {} on channel {} received command {}", itemId, channelUID, command);
+        if (command.toString().toLowerCase().equals("refresh")) {
+            return;
+        }
         switch (channelUID.getId()) {
             case CHANNEL_POWER_ON:
                 String status = command.toString().toLowerCase();
@@ -128,7 +132,6 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                     logger.error("Can't handle command {}", command);
                 }
                 break;
-
             default:
                 logger.error("Can't handle command {}", command);
                 break;
@@ -173,7 +176,8 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
         if (itemId != null && itemId.equals(sid)) {
             updateItemStatus();
             logger.debug("Item got update: {}", message.toString());
-            if (message.get("cmd").getAsString().equals("report")) {
+            String cmd = message.get("cmd").getAsString();
+            if (cmd.equals("report")) {
                 JsonObject data = parser.parse(message.get("data").getAsString()).getAsJsonObject();
                 String model = message.get("model").getAsString();
                 switch (model) {
@@ -269,7 +273,7 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                         triggerChannel("batteryLevel", "LOW");
                     }
                 }
-            } else if (message.get("cmd").getAsString().equals("heartbeat")) {
+            } else if (cmd.equals("heartbeat") || cmd.equals("read_ack")) {
                 getXiaomiBridgeHandler().updateDeviceStatus(itemId);
             }
         }
