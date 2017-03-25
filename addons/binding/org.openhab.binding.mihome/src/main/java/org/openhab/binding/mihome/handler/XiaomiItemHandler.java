@@ -112,7 +112,7 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                 } else if (command instanceof OnOffType) {
                     writeBridgeLightColor(getGatewayLightColor(), command == OnOffType.ON ? 1 : 0);
                 } else {
-                    logger.error("Can't handle command {}", command);
+                    logger.error("Can't handle command {} on channel {}", command, channelUID);
                 }
                 break;
             case CHANNEL_COLOR:
@@ -129,11 +129,11 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                     updateState(CHANNEL_COLOR,
                             HSBType.fromRGB((color / 256 / 256) & 0xff, (color / 256) & 0xff, color & 0xff));
                 } else {
-                    logger.error("Can't handle command {}", command);
+                    logger.error("Can't handle command {} on channel {}", command, channelUID);
                 }
                 break;
             default:
-                logger.error("Can't handle command {}", command);
+                logger.error("Can't handle command {} on channel {}", command, channelUID);
                 break;
         }
     }
