@@ -40,7 +40,8 @@ public class XiaomiGatewayBindingConstants {
     public static final String CHANNEL_LOAD_POWER = "loadPower";
     public static final String CHANNEL_POWER_CONSUMED = "powerConsumed";
     public static final String CHANNEL_CUBE_ACTION = "action";
-    public static final String CHANNEL_CUBE_ROTATION = "rotation";
+    public static final String CHANNEL_CUBE_ROTATION_ANGLE = "rotationAngle";
+    public static final String CHANNEL_CUBE_ROTATION_TIME = "rotationTime";
 
     // gateway light
     public static final String CHANNEL_BRIGHTNESS = "brightness";

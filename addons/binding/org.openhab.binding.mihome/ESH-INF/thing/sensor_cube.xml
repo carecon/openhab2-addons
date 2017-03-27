@@ -43,9 +43,14 @@
             </options>
         </event>
     </channel-type>
-    <channel-type id="rotation">
+    <channel-type id="rotationAngle">
         <item-type>Number</item-type>
-        <label>Cube rotation</label>
-        <state readOnly="true" step="1"></state>
+        <label>Cube rotation angle in degrees</label>
+        <state readOnly="true" step="1" pattern="%d°"></state>
+    </channel-type>
+    <channel-type id="rotationTime">
+    	<item-type>Number</item-type>
+    	<label>Cube rotation time in milliseconds</label>
+    	<state readOnly="false" step="1" pattern="%d ms"></state>
     </channel-type>
 </thing:thing-descriptions>
