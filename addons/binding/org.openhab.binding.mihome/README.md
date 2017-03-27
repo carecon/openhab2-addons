@@ -84,6 +84,8 @@ Contact WindowSwitch_Status <window>  { channel="mihome:sensor_magnet:<ID>:isOpe
 Number WindowSwitch_Battery <battery> { channel="mihome:sensor_magnet:<ID>:voltage" }
 
 // Xiaomi Cube - see "xiaomi.rules" for action triggers
+Number Cube_RotationAngle { channel="mihome:sensor_cube:<ID>:rotationAngle" }
+Number Cube_RotationTime { channel="mihome:sensor_cube:<ID>:rotationTime" }
 // NOTE: Battery level will be sent when battery is low
 Number Cube_Battery <battery> { channel="mihome:sensor_cube:<ID>:voltage" }
 
