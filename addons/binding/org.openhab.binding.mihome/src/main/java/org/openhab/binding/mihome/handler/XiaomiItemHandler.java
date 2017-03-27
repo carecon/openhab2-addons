@@ -273,13 +273,11 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                         logger.warn("detected message from unknown model: {}", model);
                         logger.warn("message data from unknown model: {}", data.toString());
                 }
-
                 if (data.get("voltage") != null) {
                     Integer voltage = data.get("voltage").getAsInt();
                     updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
-
                     if (voltage < 2800) {
-                        triggerChannel("batteryLevel", "LOW");
+                        triggerChannel(CHANNEL_BATTERY_LOW, "LOW");
                     }
                 }
             } else if (cmd.equals("heartbeat") || cmd.equals("read_ack")) {
