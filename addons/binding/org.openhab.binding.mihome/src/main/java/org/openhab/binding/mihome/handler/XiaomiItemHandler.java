@@ -284,6 +284,8 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                 }
             } else if (cmd.equals("heartbeat") || cmd.equals("read_ack")) {
                 getXiaomiBridgeHandler().updateDeviceStatus(itemId);
+            } else {
+                logger.debug("Device {} got unknown command {}", sid, cmd);
             }
         }
     }
