@@ -273,6 +273,8 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                         logger.warn("detected message from unknown model: {}", model);
                         logger.warn("message data from unknown model: {}", data.toString());
                 }
+            } else if (cmd.equals("heartbeat") || cmd.equals("read_ack")) {
+                JsonObject data = parser.parse(message.get("data").getAsString()).getAsJsonObject();
                 if (data.get("voltage") != null) {
                     Integer voltage = data.get("voltage").getAsInt();
                     updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
@@ -280,7 +282,6 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                         triggerChannel(CHANNEL_BATTERY_LOW, "LOW");
                     }
                 }
-            } else if (cmd.equals("heartbeat") || cmd.equals("read_ack")) {
                 getXiaomiBridgeHandler().updateDeviceStatus(itemId);
             } else {
                 logger.debug("Device {} got unknown command {}", sid, cmd);
