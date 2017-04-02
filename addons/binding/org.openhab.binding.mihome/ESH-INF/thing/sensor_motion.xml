@@ -24,6 +24,22 @@
 				<description>An identifier for the item connected.</description>
 				<required>true</required>
 			</parameter>
+			<parameter name="noMotionAfter" type="integer" readOnly="false">
+				<limitToOptions>true</limitToOptions>
+				<options>
+					<option value="120">120</option>
+					<option value="180">180</option>
+					<option value="300">300</option>
+					<option value="600">600</option>
+					<option value="1200">1200</option>
+					<option value="1800">1800</option>
+				</options>
+				<description>Time after which the motion sensor tells openhab, that there is no motion anymore.</description>
+				<unitLabel>Seconds</unitLabel>
+				<required>true</required>
+				<default>120</default>
+				<label>No motion detected after</label>
+			</parameter>
 		</config-description>
 	</thing-type>
 

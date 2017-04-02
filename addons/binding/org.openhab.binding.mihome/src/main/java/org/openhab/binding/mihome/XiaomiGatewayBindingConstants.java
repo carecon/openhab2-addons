@@ -31,6 +31,7 @@ public class XiaomiGatewayBindingConstants {
     // List of all Channel ids
     public static final String CHANNEL_TEMPERATURE = "temperature";
     public static final String CHANNEL_VOLTAGE = "voltage";
+    public static final String CHANNEL_BATTERY_LOW = "batteryLevel";
     public static final String CHANNEL_HUMIDITY = "humidity";
     public static final String CHANNEL_MOTION = "motion";
     public static final String CHANNEL_LAST_MOTION = "lastMotion";
@@ -39,6 +40,10 @@ public class XiaomiGatewayBindingConstants {
     public static final String CHANNEL_LOAD_VOLTAGE = "loadVoltage";
     public static final String CHANNEL_LOAD_POWER = "loadPower";
     public static final String CHANNEL_POWER_CONSUMED = "powerConsumed";
+    public static final String CHANNEL_CUBE_ACTION = "action";
+    public static final String CHANNEL_CUBE_ROTATION_ANGLE = "rotationAngle";
+    public static final String CHANNEL_CUBE_ROTATION_TIME = "rotationTime";
+
     // gateway light
     public static final String CHANNEL_BRIGHTNESS = "brightness";
     public static final String CHANNEL_COLOR = "color";
@@ -53,5 +58,6 @@ public class XiaomiGatewayBindingConstants {
 
     // Item config properties
     public static final String ITEM_ID = "itemId";
+    public static final String NO_MOTION = "noMotionAfter";
 
 }
