@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2010-2017 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -53,7 +53,7 @@ public interface VirtualDatapointHandler {
     /**
      * Handles a event to extract data required for the virtual datapoint.
      */
-    public void handleEvent(VirtualGateway gateway, HmDatapoint dp) throws HomematicClientException;
+    public void handleEvent(VirtualGateway gateway, HmDatapoint dp);
 
     /**
      * Returns the virtual datapoint in the given channel.

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2010-2017 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -51,12 +51,13 @@ import com.google.gson.JsonParser;
 public abstract class MieleApplianceHandler<E extends Enum<E> & ApplianceChannelSelector> extends BaseThingHandler
         implements ApplianceStatusListener {
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_DISHWASHER,
+    private final Logger logger = LoggerFactory.getLogger(MieleApplianceHandler.class);
+
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_DISHWASHER,
             THING_TYPE_OVEN, THING_TYPE_FRIDGE, THING_TYPE_DRYER, THING_TYPE_HOB, THING_TYPE_FRIDGEFREEZER,
             THING_TYPE_HOOD, THING_TYPE_WASHINGMACHINE);
 
     protected Gson gson = new Gson();
-    protected Logger logger = LoggerFactory.getLogger(MieleApplianceHandler.class);
 
     protected String UID;
     protected MieleBridgeHandler bridgeHandler;

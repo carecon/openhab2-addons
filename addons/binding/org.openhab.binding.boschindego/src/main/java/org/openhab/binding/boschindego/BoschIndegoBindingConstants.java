@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2010-2017 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,14 +21,14 @@ public class BoschIndegoBindingConstants {
     public static final String BINDING_ID = "boschindego";
 
     // List of all Thing Type UIDs
-    public final static ThingTypeUID THING_TYPE_INDEGO = new ThingTypeUID(BINDING_ID, "indego");
+    public static final ThingTypeUID THING_TYPE_INDEGO = new ThingTypeUID(BINDING_ID, "indego");
 
     // List of all Channel ids
-    public final static String STATE = "state";
-    public final static String TEXTUAL_STATE = "textualstate";
-    public final static String MOWED = "mowed";
-    public final static String ERRORCODE = "errorcode";
-    public final static String STATECODE = "statecode";
-    public final static String READY = "ready";
+    public static final String STATE = "state";
+    public static final String TEXTUAL_STATE = "textualstate";
+    public static final String MOWED = "mowed";
+    public static final String ERRORCODE = "errorcode";
+    public static final String STATECODE = "statecode";
+    public static final String READY = "ready";
 
 }

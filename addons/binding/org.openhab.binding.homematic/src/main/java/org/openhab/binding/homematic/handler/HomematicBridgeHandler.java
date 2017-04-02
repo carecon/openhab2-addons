@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2010-2017 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * @author Gerhard Riegler - Initial contribution
  */
 public class HomematicBridgeHandler extends BaseBridgeHandler implements HomematicGatewayListener {
-    private static final Logger logger = LoggerFactory.getLogger(HomematicBridgeHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(HomematicBridgeHandler.class);
     private static final long REINITIALIZE_DELAY_SECONDS = 10;
     private static SimplePortPool portPool = new SimplePortPool();
 
@@ -63,18 +63,18 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
      */
     @Override
     public void initialize() {
-        try {
-            String id = getThing().getUID().getId();
-            config = createHomematicConfig();
+        config = createHomematicConfig();
+        registerDeviceDiscoveryService();
+        final HomematicBridgeHandler instance = this;
+        scheduler.execute(new Runnable() {
 
-            gateway = HomematicGatewayFactory.createGateway(id, config, this);
-            gateway.initialize();
+            @Override
+            public void run() {
+                try {
+                    String id = getThing().getUID().getId();
+                    gateway = HomematicGatewayFactory.createGateway(id, config, instance);
+                    gateway.initialize();
 
-            registerDeviceDiscoveryService();
-            scheduler.submit(new Runnable() {
-
-                @Override
-                public void run() {
                     discoveryService.startScan(null);
                     discoveryService.waitForScanFinishing();
                     updateStatus(ThingStatus.ONLINE);
@@ -83,16 +83,18 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
                             gateway.loadRssiValues();
                         } catch (IOException ex) {
                             logger.warn("Unable to load RSSI values from bridge '{}'", getThing().getUID().getId());
+                            logger.error("{}", ex.getMessage(), ex);
                         }
                     }
-                }
-            });
 
-        } catch (IOException ex) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, ex.getMessage());
-            dispose();
-            scheduleReinitialize();
-        }
+                } catch (IOException ex) {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, ex.getMessage());
+                    dispose();
+                    scheduleReinitialize();
+                }
+            }
+        });
+
     }
 
     /**
@@ -189,7 +191,7 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
         } else {
             portPool.setInUse(homematicConfig.getBinCallbackPort());
         }
-        logger.debug(homematicConfig.toString());
+        logger.debug("{}", homematicConfig);
         return homematicConfig;
     }
 
@@ -315,7 +317,7 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
                 HmDevice device = gateway.getDevice(UidUtils.getHomematicAddress(hmThing));
                 gateway.triggerDeviceValuesReload(device);
             } catch (HomematicClientException ex) {
-                logger.warn(ex.getMessage());
+                logger.warn("{}", ex.getMessage());
             }
         }
     }

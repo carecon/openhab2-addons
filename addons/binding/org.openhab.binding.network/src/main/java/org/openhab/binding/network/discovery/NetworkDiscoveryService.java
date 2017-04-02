@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2010-2017 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 public class NetworkDiscoveryService extends AbstractDiscoveryService implements DiscoveryCallback {
     private final Logger logger = LoggerFactory.getLogger(NetworkDiscoveryService.class);
     private ExecutorService executorService = null;
-    final static int PING_TIMEOUT_IN_MS = 500;
+    static final int PING_TIMEOUT_IN_MS = 500;
     private int scanningNetworkSize = 0;
 
     public NetworkDiscoveryService() {
@@ -88,7 +88,7 @@ public class NetworkDiscoveryService extends AbstractDiscoveryService implements
      */
     @Override
     public void newDevice(String ip) {
-        logger.info("Found " + ip);
+        logger.info("Found {}", ip);
 
         // uid must not contains dots
         ThingUID uid = new ThingUID(THING_TYPE_DEVICE, ip.replace('.', '_'));

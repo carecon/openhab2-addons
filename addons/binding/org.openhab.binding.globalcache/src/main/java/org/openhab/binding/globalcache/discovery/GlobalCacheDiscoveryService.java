@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2010-2017 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -38,14 +38,14 @@ import org.slf4j.LoggerFactory;
  * @author Mark Hilbush - Initial contribution
  */
 public class GlobalCacheDiscoveryService extends AbstractDiscoveryService implements ExtendedDiscoveryService {
-    private final static Logger logger = LoggerFactory.getLogger(GlobalCacheDiscoveryService.class);
+    private final Logger logger = LoggerFactory.getLogger(GlobalCacheDiscoveryService.class);
 
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> gcDiscoveryJob;
 
     // Discovery parameters
-    public final static boolean BACKGROUND_DISCOVERY_ENABLED = true;
-    public final static int BACKGROUND_DISCOVERY_DELAY = 10;
+    public static final boolean BACKGROUND_DISCOVERY_ENABLED = true;
+    public static final int BACKGROUND_DISCOVERY_DELAY = 10;
 
     private DiscoveryServiceCallback discoveryServiceCallback;
 

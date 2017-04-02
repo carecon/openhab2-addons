@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2010-2017 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,6 +17,8 @@ public class HomematicConstants {
     public static final String DEVICE_TYPE_VIRTUAL = "HM-RCV-50";
     public static final String DEVICE_TYPE_VIRTUAL_WIRED = "HMW-RCV-50";
     public static final String DEVICE_TYPE_19_REMOTE_CONTROL = "HM-RC-19";
+    public static final String DEVICE_TYPE_STATUS_DISPLAY = "HM-Dis-WM55";
+    public static final String DEVICE_TYPE_EP_STATUS_DISPLAY = "HM-Dis-EP-WM55";
 
     public static final String DEVICE_TYPE_SHUTTER_CONTACT = "HM-Sec-SC";
     public static final String DEVICE_TYPE_SHUTTER_CONTACT_2 = "ZEL-STG-RM-FFK";
@@ -78,6 +80,7 @@ public class HomematicConstants {
     public static final String VIRTUAL_DATAPOINT_NAME_RELOAD_RSSI = "RELOAD_RSSI";
     public static final String VIRTUAL_DATAPOINT_NAME_RSSI = "RSSI";
     public static final String VIRTUAL_DATAPOINT_NAME_STATE_CONTACT = "STATE_CONTACT";
+    public static final String VIRTUAL_DATAPOINT_NAME_SIGNAL_STRENGTH = "SIGNAL_STRENGTH";
 
     public static final String RPC_METHODNAME_EVENT = "event";
     public static final String RPC_METHODNAME_LIST_DEVICES = "listDevices";

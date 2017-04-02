@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2010-2017 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -120,7 +120,7 @@ public class FreeboxHandler extends BaseBridgeHandler {
                     setReboot(command);
             }
         } catch (FreeboxException e) {
-            logger.error(e.getMessage());
+            logger.error("{}", e.getMessage());
         }
     }
 
@@ -130,14 +130,14 @@ public class FreeboxHandler extends BaseBridgeHandler {
      *
      * @throws FreeboxException
      */
-    private boolean authorize() {
+    private boolean authorize(boolean useHttps, String fqdn, String apiBaseUrl, String apiVersion) {
 
         FreeboxServerConfiguration configuration = getConfigAs(FreeboxServerConfiguration.class);
 
         Bundle bundle = FrameworkUtil.getBundle(getClass());
 
         fbClient = new FreeboxOsClient(bundle.getSymbolicName(), /* org.openhab.binding.freebox */
-                configuration.fqdn);
+                useHttps, fqdn, apiBaseUrl, apiVersion);
 
         LoginManager loginManager = fbClient.getLoginManager();
         TrackAuthorizeStatus authorizeStatus = TrackAuthorizeStatus.UNKNOWN;
@@ -156,7 +156,7 @@ public class FreeboxHandler extends BaseBridgeHandler {
                 logger.info("####################################################################");
                 logger.info("# Please accept activation request directly on your freebox        #");
                 logger.info("# Once done, record Apptoken in the Freebox Item configuration     #");
-                logger.info("# " + configuration.appToken + " #");
+                logger.info("# {} #", configuration.appToken);
                 logger.info("####################################################################");
 
                 do {
@@ -171,12 +171,12 @@ public class FreeboxHandler extends BaseBridgeHandler {
                 return false;
             }
 
-            logger.debug("Apptoken valide : [" + configuration.appToken + "]");
+            logger.debug("Apptoken valide : [{}]", configuration.appToken);
             loginManager.setAppToken(configuration.appToken);
             loginManager.openSession();
             return true;
         } catch (FreeboxException | InterruptedException e) {
-            logger.error(e.getMessage());
+            logger.error("{}", e.getMessage());
             return false;
         }
     }
@@ -206,6 +206,9 @@ public class FreeboxHandler extends BaseBridgeHandler {
             String apiBaseUrl = null;
             String apiVersion = null;
             String hardwareVersion = null;
+            // String apiDomain = null;
+            // boolean httpsAvailable = false;
+            // String httpsPort = null;
             FreeboxServerConfiguration configuration = getConfigAs(FreeboxServerConfiguration.class);
             String result = null;
             try {
@@ -218,16 +221,19 @@ public class FreeboxHandler extends BaseBridgeHandler {
                         .replace(StringUtils.substringBetween(result, "\"api_base_url\":\"", "\""), "\\/", "/"));
                 apiVersion = StringUtils.trim(StringUtils.substringBetween(result, "\"api_version\":\"", "\""));
                 hardwareVersion = StringUtils.trim(StringUtils.substringBetween(result, "\"device_type\":\"", "\""));
+                // apiDomain = StringUtils.trim(StringUtils.substringBetween(result, "\"api_domain\":\"", "\""));
+                // httpsAvailable = StringUtils.containsIgnoreCase(result, "\"https_available\":true");
+                // httpsPort = StringUtils.trim(StringUtils.substringBetween(result, "\"https_port\":", ","));
             }
 
             if ((apiBaseUrl != null) && (apiVersion != null) && (hardwareVersion != null)) {
-                if (authorize()) {
+                if (authorize(false, configuration.fqdn, apiBaseUrl, apiVersion)) {
                     updateStatus(ThingStatus.ONLINE);
 
                     if (globalJob == null || globalJob.isCancelled()) {
-                        long polling_interval = getConfigAs(FreeboxServerConfiguration.class).refreshInterval;
-                        logger.debug("Scheduling server state update every {} seconds...", polling_interval);
-                        globalJob = scheduler.scheduleAtFixedRate(globalRunnable, 1, polling_interval,
+                        long pollingInterval = getConfigAs(FreeboxServerConfiguration.class).refreshInterval;
+                        logger.debug("Scheduling server state update every {} seconds...", pollingInterval);
+                        globalJob = scheduler.scheduleAtFixedRate(globalRunnable, 1, pollingInterval,
                                 TimeUnit.SECONDS);
                     }
                 } else {
@@ -305,7 +311,7 @@ public class FreeboxHandler extends BaseBridgeHandler {
                 } else {
                     t.printStackTrace(new PrintWriter(sw));
                 }
-                logger.error(sw.toString());
+                logger.error("{}", sw);
                 if (getThing().getStatus() == ThingStatus.ONLINE) {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
                 }

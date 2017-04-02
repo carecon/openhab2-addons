@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2010-2017 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.types.State;
+import org.openhab.io.imperihome.internal.ImperiHomeConfig;
 import org.openhab.io.imperihome.internal.action.ActionRegistry;
 import org.openhab.io.imperihome.internal.model.device.AbstractDevice;
 import org.openhab.io.imperihome.internal.model.device.AbstractNumericValueDevice;
@@ -48,6 +49,8 @@ import org.openhab.io.imperihome.internal.model.device.TemperatureDevice;
 import org.openhab.io.imperihome.internal.model.device.TrippableDevice;
 import org.openhab.io.imperihome.internal.model.device.UvDevice;
 import org.openhab.io.imperihome.internal.model.device.WindDevice;
+import org.openhab.io.imperihome.internal.model.param.DeviceParam;
+import org.openhab.io.imperihome.internal.model.param.ParamType;
 import org.openhab.io.imperihome.internal.util.DigestUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,11 +70,14 @@ public class ItemProcessor implements ItemRegistryChangeListener {
     private final ItemRegistry itemRegistry;
     private final DeviceRegistry deviceRegistry;
     private final ActionRegistry actionRegistry;
+    private final ImperiHomeConfig config;
 
-    public ItemProcessor(ItemRegistry itemRegistry, DeviceRegistry deviceRegistry, ActionRegistry actionRegistry) {
+    public ItemProcessor(ItemRegistry itemRegistry, DeviceRegistry deviceRegistry, ActionRegistry actionRegistry,
+            ImperiHomeConfig config) {
         this.itemRegistry = itemRegistry;
         this.deviceRegistry = deviceRegistry;
         this.actionRegistry = actionRegistry;
+        this.config = config;
 
         allItemsChanged(null);
         itemRegistry.addRegistryChangeListener(this);
@@ -104,6 +110,7 @@ public class ItemProcessor implements ItemRegistryChangeListener {
                 device.setInverted(isInverted(issTags));
                 device.setActionRegistry(actionRegistry);
 
+                setIcon(device, issTags);
                 setDeviceRoom(device, issTags);
                 setDeviceLinks(device, item, issTags);
                 setMapping(device, item, issTags);
@@ -116,6 +123,23 @@ public class ItemProcessor implements ItemRegistryChangeListener {
                 deviceRegistry.add(device);
             }
         }
+    }
+
+    private void setIcon(AbstractDevice device, Map<TagType, List<String>> issTags) {
+        if (!issTags.containsKey(TagType.ICON)) {
+            return;
+        }
+
+        String icon = issTags.get(TagType.ICON).get(0);
+        if (!icon.toLowerCase().startsWith("http")) {
+            if (StringUtils.isEmpty(config.getRootUrl())) {
+                logger.error("Can't set icon; 'openhab.rootUrl' not set in configuration");
+                return;
+            }
+            icon = config.getRootUrl() + "icon/" + icon;
+        }
+
+        device.addParam(new DeviceParam(ParamType.DEFAULT_ICON, icon));
     }
 
     private AbstractDevice getDeviceInstance(DeviceType deviceType, Item item) {
@@ -303,8 +327,8 @@ public class ItemProcessor implements ItemRegistryChangeListener {
                         if (!tags.containsKey(tagType)) {
                             tags.put(tagType, new LinkedList<String>());
                         } else if (!tagType.isMultiValue()) {
-                            logger.error("Found multiple values for tag " + tagType.getPrefix()
-                                    + " - only first value is used");
+                            logger.error("Found multiple values for tag {} - only first value is used",
+                                    tagType.getPrefix());
                         }
                         tags.get(tagType).add(tagValue);
                         break;
@@ -377,8 +401,8 @@ public class ItemProcessor implements ItemRegistryChangeListener {
         }
 
         if (deviceRegistry.hasDevices()) {
-            logger.warn("There are still Devices left after processing all Items from allItemsChanged(): "
-                    + deviceRegistry.getDevices());
+            logger.warn("There are still Devices left after processing all Items from allItemsChanged(): {}",
+                    deviceRegistry.getDevices());
             deviceRegistry.clear();
         }
 

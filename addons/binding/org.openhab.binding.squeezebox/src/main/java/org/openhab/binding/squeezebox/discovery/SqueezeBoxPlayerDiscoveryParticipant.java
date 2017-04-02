@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2010-2017 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -38,8 +38,8 @@ public class SqueezeBoxPlayerDiscoveryParticipant extends AbstractDiscoveryServi
         implements SqueezeBoxPlayerEventListener {
     private final Logger logger = LoggerFactory.getLogger(SqueezeBoxPlayerDiscoveryParticipant.class);
 
-    private final static int TIMEOUT = 60;
-    private final static int TTL = 60;
+    private static final int TIMEOUT = 60;
+    private static final int TTL = 60;
 
     private SqueezeBoxServerHandler squeezeBoxServerHandler;
     private ScheduledFuture<?> requestPlayerJob;
