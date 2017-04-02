@@ -61,7 +61,7 @@
 		<item-type>Number</item-type>
 		<label>Battery Voltage</label>
 		<category>Battery Voltage</category>
-		<state pattern="%d mv" readOnly="true"></state>
+		<state pattern="%d mV" readOnly="true"></state>
 	</channel-type>
 
 	<channel-type id="batteryLevel" advanced="true">
