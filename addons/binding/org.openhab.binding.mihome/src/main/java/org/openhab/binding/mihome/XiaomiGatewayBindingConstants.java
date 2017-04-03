@@ -14,6 +14,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * used across the whole binding.
  *
  * @author Patrick Boos - Initial contribution
+ * @author Dimalo - added cube channels
  */
 public class XiaomiGatewayBindingConstants {
 
