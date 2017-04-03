@@ -46,6 +46,7 @@ import com.google.gson.JsonParser;
  *
  * @author Patrick Boos - Initial contribution
  * @author Kuba Wolanin - Added voltage and low battery report
+ * @author Dimalo - Added cube rotation, heartbeat handling
  */
 public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpdateListener {
 

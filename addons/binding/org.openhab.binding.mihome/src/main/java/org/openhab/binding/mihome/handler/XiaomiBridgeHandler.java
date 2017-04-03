@@ -49,6 +49,7 @@ import com.google.gson.JsonParser;
  * sent to one of the channels for the bridge.
  *
  * @author Patrick Boos - Initial contribution
+ * @author Dimalo - added device update from heartbeat
  */
 public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements XiaomiSocketListener {
 
