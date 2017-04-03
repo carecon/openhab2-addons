@@ -63,13 +63,11 @@ Dimmer Gateway_ColorTemperature <heating> { channel="mihome:gateway:<ID>:colorTe
 // Xiaomi Temperature and Humidity Sensor
 Number HT_Temperature <temperature> { channel="mihome:sensor_ht:<ID>:temperature" }
 Number HT_Humidity <humidity> { channel="mihome:sensor_ht:<ID>:humidity" }
-// NOTE: Battery level will be sent when battery is low
 Number HT_Battery <battery> { channel="mihome:sensor_ht:<ID>:voltage" }
 
 // Xiaomi Motion Sensor
 Switch MotionSensor_MotionStatus <motion>  { channel="mihome:sensor_motion:<ID>:motion" }
 DateTime MotionSensor_LastMotion "[%1$tY-%1$tm-%1$td  %1$tH:%1$tM]" <clock-on> { channel="mihome:sensor_motion:<ID>:lastMotion" }
-// NOTE: Battery level will be sent when battery is low
 Number MotionSensor_Battery <battery> { channel="mihome:sensor_motion:<ID>:voltage" }
 
 // Xiaomi Plug
@@ -80,17 +78,14 @@ Number Plug_Consumption <line-incline> { channel="mihome:sensor_plug:<ID>:powerC
 
 // Xiaomi Window Switch
 Contact WindowSwitch_Status <window>  { channel="mihome:sensor_magnet:<ID>:isOpen" }
-// NOTE: Battery level will be sent when battery is low
 Number WindowSwitch_Battery <battery> { channel="mihome:sensor_magnet:<ID>:voltage" }
 
 // Xiaomi Cube - see "xiaomi.rules" for action triggers
 Number Cube_RotationAngle { channel="mihome:sensor_cube:<ID>:rotationAngle" }
 Number Cube_RotationTime { channel="mihome:sensor_cube:<ID>:rotationTime" }
-// NOTE: Battery level will be sent when battery is low
 Number Cube_Battery <battery> { channel="mihome:sensor_cube:<ID>:voltage" }
 
 // Xiaomi Switch - see "xiaomi.rules" for action triggers
-// NOTE: Battery level will be sent when battery is low
 Number Switch_Battery <battery> { channel="mihome:sensor_switch:<ID>:voltage" }
 ```
 
