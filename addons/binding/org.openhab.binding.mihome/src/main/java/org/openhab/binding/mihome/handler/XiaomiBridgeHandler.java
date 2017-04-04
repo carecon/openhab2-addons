@@ -15,12 +15,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -164,7 +161,7 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
 
     public synchronized boolean registerItemListener(XiaomiItemUpdateListener listener) {
         if (listener == null) {
-            throw new NullPointerException("It's not allowed to pass a null XiaomiItemUpdateListener.");
+            throw new IllegalArgumentException("It's not allowed to pass a null XiaomiItemUpdateListener.");
         }
         boolean result = itemListeners.add(listener);
         if (result) {
