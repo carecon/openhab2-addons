@@ -187,7 +187,7 @@ end
 
 ```
 // Selection for Xiaomi Gateway Sounds
-Selection item=soundSelect mappings=[   0="police car 1",
+Selection item=Gateway_Sound mappings=[ 0="police car 1",
                                         1="police car 2",
                                         2="accident",
                                         3="countdown", 
