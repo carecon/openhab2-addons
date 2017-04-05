@@ -17,7 +17,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.openhab.binding.mihome.handler.XiaomiBridgeHandler;
-import org.openhab.binding.mihome.handler.XiaomiItemHandler;
+import org.openhab.binding.mihome.handler.XiaomiDeviceBaseHandler;
 import org.openhab.binding.mihome.internal.discovery.XiaomiItemDiscoveryService;
 import org.osgi.framework.ServiceRegistration;
 
@@ -37,7 +37,7 @@ import static org.openhab.binding.mihome.XiaomiGatewayBindingConstants.SERIAL_NU
  */
 public class XiaomiHandlerFactory extends BaseThingHandlerFactory {
 
-    private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets.union(XiaomiBridgeHandler.SUPPORTED_THING_TYPES, XiaomiItemHandler.SUPPORTED_THING_TYPES);
+    private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets.union(XiaomiBridgeHandler.SUPPORTED_THING_TYPES, XiaomiDeviceBaseHandler.SUPPORTED_THING_TYPES);
 
     private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
@@ -47,7 +47,7 @@ public class XiaomiHandlerFactory extends BaseThingHandlerFactory {
             ThingUID hueBridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
             return super.createThing(thingTypeUID, configuration, hueBridgeUID, null);
         }
-        if (XiaomiItemHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+        if (XiaomiDeviceBaseHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             ThingUID itemUID = getItemUID(thingTypeUID, thingUID, configuration, bridgeUID);
             return super.createThing(thingTypeUID, configuration, itemUID, bridgeUID);
         }
@@ -84,8 +84,8 @@ public class XiaomiHandlerFactory extends BaseThingHandlerFactory {
             XiaomiBridgeHandler handler = new XiaomiBridgeHandler((Bridge) thing);
             registerItemDiscoveryService(handler);
             return handler;
-        } else if (XiaomiItemHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
-            return new XiaomiItemHandler(thing);
+        } else if (XiaomiDeviceBaseHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            return new XiaomiDeviceBaseHandler(thing);
         }
 
         return null;

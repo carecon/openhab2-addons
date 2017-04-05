@@ -59,6 +59,9 @@ The binding requires port `9898` to not be used by any other service on the syst
 Dimmer Gateway_Brightness <dimmablelight> { channel="mihome:gateway:<ID>:brightness" }
 Color Gateway_Color <rgb> { channel="mihome:gateway:<ID>:color" }
 Dimmer Gateway_ColorTemperature <heating> { channel="mihome:gateway:<ID>:colorTemperature" }
+Number Gateway_Sound <soundvolume-0> { channel="mihome:gateway:<ID>:sound" }
+Switch Gateway_SoundSwitch <soundvolume_mute> { channel="mihome:gateway:<ID>:enableSound" }
+Dimmer Gateway_SoundVolume <soundvolume> { channel="mihome:gateway:<ID>:volume" }
 
 // Xiaomi Temperature and Humidity Sensor
 Number HT_Temperature <temperature> { channel="mihome:sensor_ht:<ID>:temperature" }
@@ -179,3 +182,32 @@ then
     <ACTION>
 end
 ```
+
+**xiaomi.sitemap**:
+
+```
+// Selection for Xiaomi Gateway Sounds
+Selection item=soundSelect mappings=[   0="police car 1",
+                                        1="police car 2",
+                                        2="accident",
+                                        3="countdown", 
+                                        4="ghost",
+                                        5="sniper rifle",
+                                        6="battle",
+                                        7="air raid",
+                                        8="bark", 
+                                        10="doorbell",
+                                        11="knock at a door",
+                                        12="amuse",
+                                        13="alarm clock",
+                                        20="mimix",
+                                        21="enthusuastic",
+                                        22="guitar classic",
+                                        23="ice world piano", 
+                                        24="leisure time", 
+                                        25="child hood", 
+                                        26="morning stream liet", 
+                                        27="music box", 
+                                        28="orange", 
+                                        29="thinker"]
+``

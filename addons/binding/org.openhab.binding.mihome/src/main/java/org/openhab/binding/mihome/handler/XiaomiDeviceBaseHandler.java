@@ -41,29 +41,29 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 /**
- * The {@link XiaomiItemHandler} is responsible for handling commands, which are
+ * The {@link XiaomiDeviceBaseHandler} is responsible for handling commands, which are
  * sent to one of the channels.
  *
  * @author Patrick Boos - Initial contribution
  * @author Kuba Wolanin - Added voltage and low battery report
  * @author Dimalo - Added cube rotation, heartbeat handling
  */
-public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpdateListener {
+public class XiaomiDeviceBaseHandler extends BaseThingHandler implements XiaomiItemUpdateListener {
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
             Arrays.asList(THING_TYPE_GATEWAY, THING_TYPE_SENSOR_HT, THING_TYPE_SENSOR_MOTION, THING_TYPE_SENSOR_SWITCH,
                     THING_TYPE_SENSOR_MAGNET, THING_TYPE_SENSOR_PLUG, THING_TYPE_SENSOR_CUBE));
 
-    private static final long ONLINE_TIMEOUT = 2 * 60 * 60 * 1000;
+    private static final long ONLINE_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours
 
     private JsonParser parser = new JsonParser();
 
     private XiaomiBridgeHandler bridgeHandler;
     private String itemId;
 
-    private Logger logger = LoggerFactory.getLogger(XiaomiItemHandler.class);
+    private Logger logger = LoggerFactory.getLogger(XiaomiDeviceBaseHandler.class);
 
-    public XiaomiItemHandler(Thing thing) {
+    public XiaomiDeviceBaseHandler(Thing thing) {
         super(thing);
     }
 
@@ -73,12 +73,13 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
         if (configItemId != null) {
             itemId = configItemId;
         }
-        scheduler.scheduleWithFixedDelay(new Runnable() {
+        // schedule init with random delay between 200ms and 1sec
+        scheduler.schedule(new Runnable() {
             @Override
             public void run() {
                 updateItemStatus();
             }
-        }, 200, 5000, TimeUnit.MILLISECONDS);
+        }, (int) Math.max((Math.random() * 1000), 200), TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -132,6 +133,30 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                 } else {
                     logger.error("Can't handle command {} on channel {}", command, channelUID);
                 }
+                break;
+            case CHANNEL_GATEWAY_SOUND:
+                if (command instanceof DecimalType) {
+                    State state = getItemInChannel(CHANNEL_GATEWAY_VOLUME).getState();
+                    // get volume, default is 50%
+                    int volume = (state instanceof DecimalType && state != null) ? ((DecimalType) state).intValue()
+                            : 50;
+                    writeBridgeRingtone(((DecimalType) command).intValue(), volume);
+                    updateState(CHANNEL_GATEWAY_SOUND_SWITCH, OnOffType.ON);
+                } else {
+                    logger.error("Can't handle command {} on channel {}", command, channelUID);
+                }
+                break;
+            case CHANNEL_GATEWAY_SOUND_SWITCH:
+                if (command instanceof OnOffType) {
+                    if (((OnOffType) command) == OnOffType.OFF) {
+                        stopRingtone();
+                    }
+                } else {
+                    logger.error("Can't handle command {} on channel {}", command, channelUID);
+                }
+                break;
+            case CHANNEL_GATEWAY_VOLUME:
+                logger.info("changed volume");
                 break;
             default:
                 logger.error("Can't handle command {} on channel {}", command, channelUID);
@@ -219,6 +244,13 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
                             boolean isOpen = !data.get("status").getAsString().equals("close");
                             updateState(CHANNEL_IS_OPEN, isOpen ? OpenClosedType.OPEN : OpenClosedType.CLOSED);
                         }
+                        // TODO: make alarm trigger channel, which can be configured to go off after certain amount of
+                        // time (60, 300...)
+                        /*
+                         * if (data.has("no_close")) {
+                         * data.get("no_close").getAsInt();
+                         * }
+                         */
                         break;
                     case "plug":
                         if (data.has("status")) {
@@ -311,8 +343,8 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
      *
      * @param ringtoneId
      */
-    private void writeBridgeRingtone(int ringtoneId) {
-        getXiaomiBridgeHandler().writeToBridge(new String[] { "mid" }, new Object[] { ringtoneId });
+    private void writeBridgeRingtone(int ringtoneId, int volume) {
+        getXiaomiBridgeHandler().writeToBridge(new String[] { "mid", "vol" }, new Object[] { ringtoneId, volume });
     }
 
     /**
@@ -344,7 +376,8 @@ public class XiaomiItemHandler extends BaseThingHandler implements XiaomiItemUpd
         if (itemId != null) {
             // note: this call implicitly registers our handler as a listener on the bridge
             if (getXiaomiBridgeHandler() != null) {
-                ThingStatus bridgeStatus = (getBridge() == null) ? null : getBridge().getStatus();
+                Bridge bridge = getBridge();
+                ThingStatus bridgeStatus = (bridge == null) ? null : bridge.getStatus();
                 if (bridgeStatus == ThingStatus.ONLINE) {
                     ThingStatus itemStatus = getThing().getStatus();
                     ThingStatus newStatus = getXiaomiBridgeHandler().hasItemActivity(itemId, ONLINE_TIMEOUT)

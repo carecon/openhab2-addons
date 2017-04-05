@@ -14,7 +14,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * used across the whole binding.
  *
  * @author Patrick Boos - Initial contribution
- * @author Dimalo - added cube channels
+ * @author Dimalo - added cube & gateway sound channels
  */
 public class XiaomiGatewayBindingConstants {
 
@@ -30,21 +30,29 @@ public class XiaomiGatewayBindingConstants {
     public final static ThingTypeUID THING_TYPE_SENSOR_CUBE = new ThingTypeUID(BINDING_ID, "sensor_cube");
 
     // List of all Channel ids
-    public static final String CHANNEL_TEMPERATURE = "temperature";
     public static final String CHANNEL_VOLTAGE = "voltage";
     public static final String CHANNEL_BATTERY_LOW = "batteryLevel";
+    // TH sensor
+    public static final String CHANNEL_TEMPERATURE = "temperature";
     public static final String CHANNEL_HUMIDITY = "humidity";
+    // motion sensor
     public static final String CHANNEL_MOTION = "motion";
     public static final String CHANNEL_LAST_MOTION = "lastMotion";
+    // window sensor
     public static final String CHANNEL_IS_OPEN = "isOpen";
+    // plug
     public static final String CHANNEL_POWER_ON = "powerOn";
     public static final String CHANNEL_LOAD_VOLTAGE = "loadVoltage";
     public static final String CHANNEL_LOAD_POWER = "loadPower";
     public static final String CHANNEL_POWER_CONSUMED = "powerConsumed";
+    // cube
     public static final String CHANNEL_CUBE_ACTION = "action";
     public static final String CHANNEL_CUBE_ROTATION_ANGLE = "rotationAngle";
     public static final String CHANNEL_CUBE_ROTATION_TIME = "rotationTime";
-
+    // gateway sound
+    public static final String CHANNEL_GATEWAY_SOUND_SWITCH = "enableSound";
+    public static final String CHANNEL_GATEWAY_SOUND = "sound";
+    public static final String CHANNEL_GATEWAY_VOLUME = "volume";
     // gateway light
     public static final String CHANNEL_BRIGHTNESS = "brightness";
     public static final String CHANNEL_COLOR = "color";
@@ -59,6 +67,7 @@ public class XiaomiGatewayBindingConstants {
 
     // Item config properties
     public static final String ITEM_ID = "itemId";
+    // motion sensor
     public static final String NO_MOTION = "noMotionAfter";
 
 }
