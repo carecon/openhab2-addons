@@ -14,7 +14,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * used across the whole binding.
  *
  * @author Patrick Boos - Initial contribution
- * @author Dimalo - added cube & gateway sound channels
+ * @author Dimalo - added cube, gateway sound channels, window sensor alarm
  */
 public class XiaomiGatewayBindingConstants {
 
@@ -40,6 +40,7 @@ public class XiaomiGatewayBindingConstants {
     public static final String CHANNEL_LAST_MOTION = "lastMotion";
     // window sensor
     public static final String CHANNEL_IS_OPEN = "isOpen";
+    public static final String CHANNEL_OPEN_ALARM = "isOpenAlarm";
     // plug
     public static final String CHANNEL_POWER_ON = "powerOn";
     public static final String CHANNEL_LOAD_VOLTAGE = "loadVoltage";
@@ -69,5 +70,7 @@ public class XiaomiGatewayBindingConstants {
     public static final String ITEM_ID = "itemId";
     // motion sensor
     public static final String NO_MOTION = "noMotionAfter";
+    // window sensor
+    public static final String ALARM = "alarmAfter";
 
 }

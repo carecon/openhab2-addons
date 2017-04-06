@@ -23,6 +23,17 @@
 				<description>An identifier for the item connected.</description>
 				<required>true</required>
 			</parameter>
+			<parameter name="alarmAfter" type="integer" readOnly="false">
+				<limitToOptions>true</limitToOptions>
+				<options>
+					<option value="60">60</option>
+					<option value="300">300</option>
+					<option value="600">600</option></options>
+				<required>true</required>
+				<default>300</default>
+				<description>Time after which the trigger for an opened window should be set</description>
+				<label>Opened window alarm after</label>
+				<unitLabel>Seconds</unitLabel></parameter>
 		</config-description>
 	</thing-type>
 
@@ -49,6 +60,15 @@
 				<option value="LOW">low</option>
 			</options>
 		</event>
+	</channel-type>
+	<channel-type id="isOpenAlarm">
+		<kind>trigger</kind>
+		<label>Opened window alarm</label>
+		<description>Triggers ALARM event, when window sensor is not getting "closed" for configured amount of time</description>
+		<event>
+			<options>
+				<option value="ALARM">alarm</option>
+			</options></event>
 	</channel-type>
 
 </thing:thing-descriptions>

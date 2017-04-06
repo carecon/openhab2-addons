@@ -110,4 +110,9 @@ public class XiaomiItemDiscoveryService extends AbstractDiscoveryService impleme
                     .withBridge(xiaomiBridgeHandler.getThing().getUID()).build());
         }
     }
+
+    @Override
+    public String getItemId() {
+        return null;
+    }
 }

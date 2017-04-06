@@ -16,12 +16,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.library.types.HSBType;
-import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.library.types.OpenClosedType;
-import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -31,8 +26,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
-import org.openhab.binding.mihome.internal.ColorUtil;
 import org.openhab.binding.mihome.internal.XiaomiItemUpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +39,9 @@ import com.google.gson.JsonParser;
  *
  * @author Patrick Boos - Initial contribution
  * @author Kuba Wolanin - Added voltage and low battery report
- * @author Dimalo - Added cube rotation, heartbeat handling
+ * @author Dimalo - Added cube rotation, heartbeat and voltage handling, configurable window and motion delay
  */
-public class XiaomiDeviceBaseHandler extends BaseThingHandler implements XiaomiItemUpdateListener {
+public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implements XiaomiItemUpdateListener {
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
             Arrays.asList(THING_TYPE_GATEWAY, THING_TYPE_SENSOR_HT, THING_TYPE_SENSOR_MOTION, THING_TYPE_SENSOR_SWITCH,
@@ -59,9 +52,10 @@ public class XiaomiDeviceBaseHandler extends BaseThingHandler implements XiaomiI
     private JsonParser parser = new JsonParser();
 
     private XiaomiBridgeHandler bridgeHandler;
-    private String itemId;
 
-    private Logger logger = LoggerFactory.getLogger(XiaomiDeviceBaseHandler.class);
+    String itemId;
+
+    Logger logger = LoggerFactory.getLogger(XiaomiDeviceBaseHandler.class);
 
     public XiaomiDeviceBaseHandler(Thing thing) {
         super(thing);
@@ -77,7 +71,7 @@ public class XiaomiDeviceBaseHandler extends BaseThingHandler implements XiaomiI
         scheduler.schedule(new Runnable() {
             @Override
             public void run() {
-                updateItemStatus();
+                updateThingStatus();
             }
         }, (int) Math.max((Math.random() * 1000), 200), TimeUnit.MILLISECONDS);
     }
@@ -103,259 +97,85 @@ public class XiaomiDeviceBaseHandler extends BaseThingHandler implements XiaomiI
         if (command.toString().toLowerCase().equals("refresh")) {
             return;
         }
-        switch (channelUID.getId()) {
-            case CHANNEL_POWER_ON:
-                String status = command.toString().toLowerCase();
-                getXiaomiBridgeHandler().writeToDevice(itemId, new String[] { "status" }, new Object[] { status });
-                break;
-            case CHANNEL_BRIGHTNESS:
-                if (command instanceof PercentType) {
-                    writeBridgeLightColor(getGatewayLightColor(), ((PercentType) command).floatValue() / 100);
-                } else if (command instanceof OnOffType) {
-                    writeBridgeLightColor(getGatewayLightColor(), command == OnOffType.ON ? 1 : 0);
-                } else {
-                    logger.error("Can't handle command {} on channel {}", command, channelUID);
-                }
-                break;
-            case CHANNEL_COLOR:
-                if (command instanceof HSBType) {
-                    writeBridgeLightColor(((HSBType) command).getRGB() & 0xffffff, getGatewayLightBrightness());
-                }
-                break;
-            case CHANNEL_COLOR_TEMPERATURE:
-                if (command instanceof PercentType) {
-                    PercentType colorTemperature = (PercentType) command;
-                    int kelvin = 48 * colorTemperature.intValue() + 1700;
-                    int color = ColorUtil.getRGBFromK(kelvin);
-                    writeBridgeLightColor(color, getGatewayLightBrightness());
-                    updateState(CHANNEL_COLOR,
-                            HSBType.fromRGB((color / 256 / 256) & 0xff, (color / 256) & 0xff, color & 0xff));
-                } else {
-                    logger.error("Can't handle command {} on channel {}", command, channelUID);
-                }
-                break;
-            case CHANNEL_GATEWAY_SOUND:
-                if (command instanceof DecimalType) {
-                    State state = getItemInChannel(CHANNEL_GATEWAY_VOLUME).getState();
-                    // get volume, default is 50%
-                    int volume = (state instanceof DecimalType && state != null) ? ((DecimalType) state).intValue()
-                            : 50;
-                    writeBridgeRingtone(((DecimalType) command).intValue(), volume);
-                    updateState(CHANNEL_GATEWAY_SOUND_SWITCH, OnOffType.ON);
-                } else {
-                    logger.error("Can't handle command {} on channel {}", command, channelUID);
-                }
-                break;
-            case CHANNEL_GATEWAY_SOUND_SWITCH:
-                if (command instanceof OnOffType) {
-                    if (((OnOffType) command) == OnOffType.OFF) {
-                        stopRingtone();
-                    }
-                } else {
-                    logger.error("Can't handle command {} on channel {}", command, channelUID);
-                }
-                break;
-            case CHANNEL_GATEWAY_VOLUME:
-                logger.info("changed volume");
-                break;
-            default:
-                logger.error("Can't handle command {} on channel {}", command, channelUID);
-                break;
-        }
-    }
-
-    private int getGatewayLightColor() {
-        Item item = getItemInChannel(CHANNEL_COLOR);
-        if (item == null) {
-            return 0xffffff;
-        }
-
-        State state = item.getState();
-        if (state != null && state instanceof HSBType) {
-            return ((HSBType) state).getRGB() & 0xffffff;
-        }
-
-        return 0xffffff;
-    }
-
-    private float getGatewayLightBrightness() {
-        Item item = getItemInChannel(CHANNEL_BRIGHTNESS);
-        if (item == null) {
-            return 1f;
-        }
-
-        State state = item.getState();
-        if (state == null) {
-            return 1f;
-        } else if (state instanceof PercentType) {
-            PercentType brightness = (PercentType) state;
-            return brightness.floatValue() / 100;
-        } else if (state instanceof OnOffType) {
-            return state == OnOffType.ON ? 1f : 0f;
-        }
-
-        return 1f;
+        execute(channelUID, command);
     }
 
     @Override
     public void onItemUpdate(String sid, String command, JsonObject message) {
         if (itemId != null && itemId.equals(sid)) {
-            updateItemStatus();
             logger.debug("Item got update: {}", message.toString());
-            String cmd = message.get("cmd").getAsString();
-            if (cmd.equals("report")) {
-                JsonObject data = parser.parse(message.get("data").getAsString()).getAsJsonObject();
-                String model = message.get("model").getAsString();
-                switch (model) {
-                    case "sensor_ht":
-                        if (data.get("humidity") != null) {
-                            float humidity = data.get("humidity").getAsFloat() / 100;
-                            updateState(CHANNEL_HUMIDITY, new DecimalType(humidity));
-                        }
-                        if (data.get("temperature") != null) {
-                            float temperature = data.get("temperature").getAsFloat() / 100;
-                            updateState(CHANNEL_TEMPERATURE, new DecimalType(temperature));
-                        }
-                        if (data.get("voltage") != null) {
-                            Integer voltage = data.get("voltage").getAsInt();
-                            updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
-                        }
-                        break;
-                    case "motion":
-                        boolean hasMotion = data.has("status") && data.get("status").getAsString().equals("motion");
-                        if (hasMotion) {
-                            updateState(CHANNEL_MOTION, OnOffType.ON);
-                            updateState(CHANNEL_LAST_MOTION, new DateTimeType());
-                        }
-                        if (data.has("no_motion")) {
-                            Integer noMotionAfter = Integer.parseInt(getConfig().get(NO_MOTION).toString());
-                            if (data.get("no_motion").getAsInt() == noMotionAfter) {
-                                updateState(CHANNEL_MOTION, OnOffType.OFF);
-                            }
-                        }
-                        break;
-                    case "switch":
-                        if (data.has("status")) {
-                            triggerChannel("button", data.get("status").getAsString().toUpperCase());
-                        }
-                        break;
-                    case "magnet":
-                        if (data.has("status")) {
-                            boolean isOpen = !data.get("status").getAsString().equals("close");
-                            updateState(CHANNEL_IS_OPEN, isOpen ? OpenClosedType.OPEN : OpenClosedType.CLOSED);
-                        }
-                        // TODO: make alarm trigger channel, which can be configured to go off after certain amount of
-                        // time (60, 300...)
-                        /*
-                         * if (data.has("no_close")) {
-                         * data.get("no_close").getAsInt();
-                         * }
-                         */
-                        break;
-                    case "plug":
-                        if (data.has("status")) {
-                            boolean isOn = data.get("status").getAsString().equals("on");
-                            updateState(CHANNEL_POWER_ON, isOn ? OnOffType.ON : OnOffType.OFF);
-                        }
-                        if (data.has("load_voltage")) {
-                            updateState(CHANNEL_LOAD_VOLTAGE,
-                                    new DecimalType(data.get("load_voltage").getAsBigDecimal()));
-                        }
-                        if (data.has("load_power")) {
-                            updateState(CHANNEL_LOAD_POWER, new DecimalType(data.get("load_power").getAsBigDecimal()));
-                        }
-                        if (data.has("power_consumed")) {
-                            updateState(CHANNEL_POWER_CONSUMED,
-                                    new DecimalType(data.get("power_consumed").getAsBigDecimal()));
-                        }
-                        break;
-                    case "gateway":
-                        if (data.has("rgb")) {
-                            long rgb = data.get("rgb").getAsLong();
-                            updateState(CHANNEL_BRIGHTNESS,
-                                    new PercentType((int) (((rgb / 256 / 256 / 256) & 0xff) / 2.55)));
-                            updateState(CHANNEL_COLOR, HSBType.fromRGB((int) (rgb / 256 / 256) & 0xff,
-                                    (int) (rgb / 256) & 0xff, (int) rgb & 0xff));
-                        }
-                        break;
-                    case "cube":
-                        logger.debug("Cube data: {}", data.toString());
-                        if (data.has("status")) {
-                            triggerChannel(CHANNEL_CUBE_ACTION, data.get("status").getAsString().toUpperCase());
-                        } else if (data.has("rotate")) {
-                            Integer rot = 0;
-                            Integer time = 0;
-                            try {
-                                rot = Integer.parseInt((data.get("rotate").getAsString().split(",")[0]));
-                                // convert from percent to angle degrees
-                                rot = (int) (rot * 3.6);
-                            } catch (NumberFormatException e) {
-                                logger.error("Could not parse rotation angle", e);
-                            }
-                            try {
-                                time = Integer.parseInt((data.get("rotate").getAsString().split(",")[1]));
-                            } catch (NumberFormatException e) {
-                                logger.error("Could not parse rotation time", e);
-                            }
-                            triggerChannel(CHANNEL_CUBE_ACTION, rot < 0 ? "ROTATE_LEFT" : "ROTATE_RIGHT");
-                            updateState(CHANNEL_CUBE_ROTATION_ANGLE, new DecimalType(rot));
-                            updateState(CHANNEL_CUBE_ROTATION_TIME, new DecimalType(time));
-                        }
-                        break;
-                    default:
-                        logger.warn("detected message from unknown model: {}", model);
-                        logger.warn("message data from unknown model: {}", data.toString());
-                }
-            } else if (cmd.equals("heartbeat") || cmd.equals("read_ack")) {
-                JsonObject data = parser.parse(message.get("data").getAsString()).getAsJsonObject();
-                if (data.get("voltage") != null) {
-                    Integer voltage = data.get("voltage").getAsInt();
-                    updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
-                    if (voltage < 2800) {
-                        triggerChannel(CHANNEL_BATTERY_LOW, "LOW");
-                    }
-                }
-                getXiaomiBridgeHandler().updateDeviceStatus(itemId);
-            } else {
-                logger.debug("Device {} got unknown command {}", sid, cmd);
-            }
+            JsonObject data = parser.parse(message.get("data").getAsString()).getAsJsonObject();
+            parseCommand(command, data);
+            updateThingStatus();
         }
     }
 
-    private Item getItemInChannel(String channel) {
-        Iterator<Item> iterator = linkRegistry.getLinkedItems(thing.getChannel(channel).getUID()).iterator();
-        return iterator.hasNext() ? iterator.next() : null;
-    }
-
-    private void writeBridgeLightColor(int color, float brightness) {
-        long brightnessInt = ((long) (brightness * 255)) * 256 * 256 * 256;
-        writeBridgeLightColor((color & 0xffffff) | (brightnessInt & 0xff000000));
-    }
-
-    private void writeBridgeLightColor(long color) {
-        getXiaomiBridgeHandler().writeToBridge(new String[] { "rgb" }, new Object[] { color });
+    @Override
+    public String getItemId() {
+        return itemId;
     }
 
     /**
-     * Play ringtone on Xiaomi Gateway
-     * 0 - 8, 10 - 13, 20 - 29 -- ringtones that come with the system)
-     * > 10001 -- user-defined ringtones
-     *
-     * @param ringtoneId
+     * @param sid
+     * @param command
+     * @param data
      */
-    private void writeBridgeRingtone(int ringtoneId, int volume) {
-        getXiaomiBridgeHandler().writeToBridge(new String[] { "mid", "vol" }, new Object[] { ringtoneId, volume });
+    void parseCommand(String command, JsonObject data) {
+        if (command.equals("report")) {
+            parseReport(data);
+        } else if (command.equals("heartbeat") || command.equals("read_ack")) {
+            if (data.get("voltage") != null) {
+                Integer voltage = data.get("voltage").getAsInt();
+                updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
+                if (voltage < 2800) {
+                    triggerChannel(CHANNEL_BATTERY_LOW, "LOW");
+                }
+            }
+        } else {
+            logger.debug("Device {} got unknown command {}", itemId, command);
+        }
     }
 
     /**
-     * Stop playing ringtone on Xiaomi Gateway
-     * by setting "mid" parameter to 10000
+     * @param channelUID
+     * @param command
      */
-    private void stopRingtone() {
-        getXiaomiBridgeHandler().writeToBridge(new String[] { "mid" }, new Object[] { 10000 });
+    abstract void execute(ChannelUID channelUID, Command command);
+
+    /**
+     * @param data
+     */
+    abstract void parseReport(JsonObject data);
+
+    private void updateThingStatus() {
+        if (itemId != null) {
+            // note: this call implicitly registers our handler as a listener on the bridge, if it's not already
+            if (getXiaomiBridgeHandler() != null) {
+                Bridge bridge = getBridge();
+                ThingStatus bridgeStatus = (bridge == null) ? null : bridge.getStatus();
+                if (bridgeStatus == ThingStatus.ONLINE) {
+                    ThingStatus itemStatus = getThing().getStatus();
+                    boolean hasItemActivity = getXiaomiBridgeHandler().hasItemActivity(itemId, ONLINE_TIMEOUT);
+                    ThingStatus newStatus = hasItemActivity ? ThingStatus.ONLINE : ThingStatus.OFFLINE;
+
+                    if (!newStatus.equals(itemStatus)) {
+                        updateStatus(newStatus);
+
+                        // TODO initialize properties?
+                        // initializeProperties();
+                    }
+                } else {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+                }
+            } else {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.HANDLER_REGISTERING_ERROR);
+            }
+        } else {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
+        }
     }
 
-    private synchronized XiaomiBridgeHandler getXiaomiBridgeHandler() {
+    synchronized XiaomiBridgeHandler getXiaomiBridgeHandler() {
         if (this.bridgeHandler == null) {
             Bridge bridge = getBridge();
             if (bridge == null) {
@@ -372,31 +192,8 @@ public class XiaomiDeviceBaseHandler extends BaseThingHandler implements XiaomiI
         return this.bridgeHandler;
     }
 
-    private void updateItemStatus() {
-        if (itemId != null) {
-            // note: this call implicitly registers our handler as a listener on the bridge
-            if (getXiaomiBridgeHandler() != null) {
-                Bridge bridge = getBridge();
-                ThingStatus bridgeStatus = (bridge == null) ? null : bridge.getStatus();
-                if (bridgeStatus == ThingStatus.ONLINE) {
-                    ThingStatus itemStatus = getThing().getStatus();
-                    ThingStatus newStatus = getXiaomiBridgeHandler().hasItemActivity(itemId, ONLINE_TIMEOUT)
-                            ? ThingStatus.ONLINE : ThingStatus.OFFLINE;
-
-                    if (!newStatus.equals(itemStatus)) {
-                        updateStatus(newStatus);
-
-                        // TODO initialize properties?
-                        // initializeProperties();
-                    }
-                } else {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
-                }
-            } else {
-                updateStatus(ThingStatus.OFFLINE);
-            }
-        } else {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR);
-        }
+    synchronized Item getItemInChannel(String channel) {
+        Iterator<Item> iterator = linkRegistry.getLinkedItems(thing.getChannel(channel).getUID()).iterator();
+        return iterator.hasNext() ? iterator.next() : null;
     }
 }
