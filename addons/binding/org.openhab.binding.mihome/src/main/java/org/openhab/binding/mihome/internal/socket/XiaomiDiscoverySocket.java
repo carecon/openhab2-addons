@@ -14,7 +14,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- * Takes care of the multicast communication with the bridge.
+ * Takes care of the discovery communication with the MiHome gateway
  *
  * @author Patrick Boos - Initial contribution
  * @author Dimalo - JavaDoc and clean code
@@ -52,7 +52,8 @@ public class XiaomiDiscoverySocket extends XiaomiSocket {
     }
 
     /**
-     * Sends a message through the {@link XiaomiBridgeSocket}
+     * Sends a message through the {@link XiaomiDiscoverySocket}
+     * to the MiHome multicast address 224.0.0.50 and port 4321
      *
      * @param message - Message to be sent
      */

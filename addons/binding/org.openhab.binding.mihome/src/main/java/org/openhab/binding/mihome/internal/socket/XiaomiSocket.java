@@ -22,6 +22,14 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+/**
+ * Takes care of the communication with MiHome devices.
+ *
+ *
+ * @author Patrick Boos - Initial contribution
+ * @author Dimalo - JavaDoc and clean code
+ *
+ */
 public abstract class XiaomiSocket {
 
     static final String MCAST_ADDR = "224.0.0.50";
@@ -37,10 +45,19 @@ public abstract class XiaomiSocket {
     int port = 0;
     DatagramSocket socket;
 
+    /**
+     * Sets up an {@link XiaomiSocket} with the MiHome multicast address and a random port
+     *
+     */
     public XiaomiSocket() {
         this(0);
     }
 
+    /**
+     * Sets up an {@link XiaomiSocket} with the MiHome multicast address and a specific port
+     * 
+     * @param port - the socket will be bound to this port
+     */
     public XiaomiSocket(int port) {
         this.port = port;
 
@@ -68,7 +85,7 @@ public abstract class XiaomiSocket {
 
     /**
      * Registers a {@link XiaomiSocketListener} to be called back, when data is received.
-     * If no {@link XiaomiBridgeSocket} exists, when the method is called, it is being set up.
+     * If no {@link XiaomiSocket} exists, when the method is called, it is being set up.
      *
      * @param listener - {@link XiaomiSocketListener} to be called back
      */
@@ -84,7 +101,7 @@ public abstract class XiaomiSocket {
 
     /**
      * Unregisters a {@link XiaomiSocketListener}. If there are no listeners left,
-     * the {@link XiaomiBridgeSocket} is being closed.
+     * the {@link XiaomiSocket} is being closed.
      *
      * @param listener - {@link XiaomiSocketListener} to be unregistered
      */
@@ -97,11 +114,11 @@ public abstract class XiaomiSocket {
     }
 
     /**
-     * Sends a message through the {@link XiaomiBridgeSocket}
+     * Sends a message through the {@link XiaomiSocket} to a specific address and port
      *
      * @param message - Message to be sent
      * @param address - Address, to which the message shall be sent
-     * @param port - - Address, through which the message shall be sent
+     * @param port - - Port, through which the message shall be sent
      */
     public void sendMessage(String message, InetAddress address, int port) {
         try {
@@ -114,16 +131,22 @@ public abstract class XiaomiSocket {
         }
     }
 
+    /**
+     * @return - the port number of this {@link XiaomiSocket}
+     */
     public int getPort() {
         return port;
     }
 
+    /**
+     * @return - a list of already open sockets
+     */
     public static ArrayList<XiaomiSocket> getOpenSockets() {
         return openSockets;
     }
 
     /**
-     * The thread, which waits for data on the {@link XiaomiBridgeSocket} and handles it, when received
+     * The thread, which waits for data on the {@link XiaomiSocket} and handles it, when received
      *
      * @author Patrick Boos - Initial contribution
      * @author Dimalo - comments and synchronized block for callback instead of copy
@@ -165,7 +188,10 @@ public abstract class XiaomiSocket {
         }
 
         /**
-         * @param message
+         * Notifies all {@link XiaomiSocketListener} on the parent {@link XiaomiSocket}
+         * 
+         * @param listeners - a list of all {@link XiaomiSocketListener} to notify
+         * @param message - the data message as {@link JsonObject}
          */
         synchronized void notifyAll(List<XiaomiSocketListener> listeners, JsonObject message) {
             for (XiaomiSocketListener listener : listeners) {

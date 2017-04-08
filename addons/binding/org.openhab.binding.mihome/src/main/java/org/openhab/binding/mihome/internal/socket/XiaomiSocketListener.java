@@ -11,8 +11,8 @@ package org.openhab.binding.mihome.internal.socket;
 import com.google.gson.JsonObject;
 
 /**
- * Interface for a listener on the {@link XiaomiBridgeSocket}.
- * When it is registered on the socket, it gets called back each time, the {@link XiaomiBridgeSocket} receives data.
+ * Interface for a listener on the {@link XiaomiSocket}.
+ * When it is registered on the socket, it gets called back each time, the {@link XiaomiSocket} receives data.
  *
  * @author Patrick Boos - Initial
  */
