@@ -71,7 +71,7 @@ public class ModelMapper {
             case "ctrl_neutral1":
                 return "Xiaomi Aqara Wall Switch 1 Button";
             case "ctrl_neutral2":
-                return "Xiaomi Aqara Wall Switch 1 Button";
+                return "Xiaomi Aqara Wall Switch 2 Button";
         }
         return null;
     }
