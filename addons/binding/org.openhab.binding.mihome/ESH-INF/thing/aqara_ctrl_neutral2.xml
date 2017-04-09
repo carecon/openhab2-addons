@@ -9,8 +9,8 @@
             <bridge-type-ref id="bridge"/>
         </supported-bridge-type-refs>
 
-        <label>Xiaomi Aqara 1 Channel Wall Switch</label>
-        <description>Mains powered Aqara Switch with 1 controllable Channel</description>
+        <label>Xiaomi Aqara 2 Channel Wall Switch</label>
+        <description>Mains powered Aqara Switch with 2 controllable Channels</description>
 
         <channels>
             <channel id="sw1" typeId="sw1"/>
