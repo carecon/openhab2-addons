@@ -13,6 +13,7 @@
 
 		<channels>
 			<channel id="isOpen" typeId="isOpen" />
+            <channel id="isOpenAlarm" typeId="isOpenAlarm" />
 			<channel id="voltage" typeId="voltage" />
 			<channel id="batteryLevel" typeId="batteryLevel" />
 		</channels>
@@ -61,6 +62,7 @@
 			</options>
 		</event>
 	</channel-type>
+	
 	<channel-type id="isOpenAlarm">
 		<kind>trigger</kind>
 		<label>Opened window alarm</label>

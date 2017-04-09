@@ -52,6 +52,12 @@ The binding requires port `9898` to not be used by any other service on the syst
 
 ## Full Example
 
+**Please consider additional configuration options for things:**
+1. Motion Sensor:
+    * can be configured, after which time the Item should switch back to "off"
+1. Window Sensor
+    * can be configured, after which time the isOpenedAlarm shall trigger (see example below)
+
 **xiaomi.items:**
 
 ```
@@ -185,6 +191,13 @@ then
     } else {
         <ACTION>
     }
+end
+
+rule "Xiaomi Window Switch - Window is open alarm"
+when
+    Channel "mihome:sensor_magnet:<ID>:isOpenAlarm" triggered ALARM
+then
+    <ACTION>
 end
 
 rule "Xiaomi Aqara Battery Powered 1 Button Switch"
