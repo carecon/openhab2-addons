@@ -23,6 +23,10 @@ import org.openhab.binding.mihome.internal.ColorUtil;
 
 import com.google.gson.JsonObject;
 
+/**
+ * @author Patrick Boos - Initial contribution
+ * @author Dimalo
+ */
 public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
 
     public XiaomiActorGatewayHandler(Thing thing) {

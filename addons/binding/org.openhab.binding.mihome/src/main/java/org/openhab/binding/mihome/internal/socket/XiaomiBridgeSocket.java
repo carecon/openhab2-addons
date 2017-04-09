@@ -15,8 +15,7 @@ import java.net.MulticastSocket;
 /**
  * Takes care of the multicast communication with the bridge.
  *
- * @author Patrick Boos - Initial contribution
- * @author Dimalo - JavaDoc and clean code
+ * @author Dimalo
  *
  */
 public class XiaomiBridgeSocket extends XiaomiSocket {

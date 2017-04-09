@@ -18,9 +18,13 @@ import org.eclipse.smarthome.core.types.Command;
 
 import com.google.gson.JsonObject;
 
-public class XiaomiSensorPlugHandler extends XiaomiSensorBaseHandler {
+/**
+ * @author Patrick Boos - Initial contribution
+ * @author Dimalo
+ */
+public class XiaomiActorPlugHandler extends XiaomiDeviceBaseHandler {
 
-    public XiaomiSensorPlugHandler(Thing thing) {
+    public XiaomiActorPlugHandler(Thing thing) {
         super(thing);
     }
 

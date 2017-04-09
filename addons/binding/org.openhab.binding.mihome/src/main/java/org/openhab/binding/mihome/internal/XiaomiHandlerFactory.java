@@ -24,13 +24,17 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.openhab.binding.mihome.handler.XiaomiActorGatewayHandler;
+import org.openhab.binding.mihome.handler.XiaomiActorPlugHandler;
+import org.openhab.binding.mihome.handler.XiaomiAqaraActorSwitch1Handler;
+import org.openhab.binding.mihome.handler.XiaomiAqaraActorSwitch2Handler;
+import org.openhab.binding.mihome.handler.XiaomiAqaraSensorSwitch1Handler;
+import org.openhab.binding.mihome.handler.XiaomiAqaraSensorSwitch2Handler;
 import org.openhab.binding.mihome.handler.XiaomiBridgeHandler;
 import org.openhab.binding.mihome.handler.XiaomiDeviceBaseHandler;
 import org.openhab.binding.mihome.handler.XiaomiSensorCubeHandler;
 import org.openhab.binding.mihome.handler.XiaomiSensorHtHandler;
 import org.openhab.binding.mihome.handler.XiaomiSensorMagnetHandler;
 import org.openhab.binding.mihome.handler.XiaomiSensorMotionHandler;
-import org.openhab.binding.mihome.handler.XiaomiSensorPlugHandler;
 import org.openhab.binding.mihome.handler.XiaomiSensorSwitchHandler;
 import org.openhab.binding.mihome.internal.discovery.XiaomiItemDiscoveryService;
 import org.osgi.framework.ServiceRegistration;
@@ -42,6 +46,7 @@ import com.google.common.collect.Sets;
  * handlers.
  *
  * @author Patrick Boos - Initial contribution
+ * @author Dimalo
  */
 public class XiaomiHandlerFactory extends BaseThingHandlerFactory {
 
@@ -106,10 +111,18 @@ public class XiaomiHandlerFactory extends BaseThingHandlerFactory {
                 return new XiaomiSensorSwitchHandler(thing);
             } else if (thingTypeUID.equals(THING_TYPE_SENSOR_MAGNET)) {
                 return new XiaomiSensorMagnetHandler(thing);
-            } else if (thingTypeUID.equals(THING_TYPE_SENSOR_PLUG)) {
-                return new XiaomiSensorPlugHandler(thing);
             } else if (thingTypeUID.equals(THING_TYPE_SENSOR_CUBE)) {
                 return new XiaomiSensorCubeHandler(thing);
+            } else if (thingTypeUID.equals(THING_TYPE_SENSOR_AQARA1)) {
+                return new XiaomiAqaraSensorSwitch1Handler(thing);
+            } else if (thingTypeUID.equals(THING_TYPE_SENSOR_AQARA2)) {
+                return new XiaomiAqaraSensorSwitch2Handler(thing);
+            } else if (thingTypeUID.equals(THING_TYPE_ACTOR_AQARA1)) {
+                return new XiaomiAqaraActorSwitch1Handler(thing);
+            } else if (thingTypeUID.equals(THING_TYPE_ACTOR_AQARA2)) {
+                return new XiaomiAqaraActorSwitch2Handler(thing);
+            } else if (thingTypeUID.equals(THING_TYPE_ACTOR_PLUG)) {
+                return new XiaomiActorPlugHandler(thing);
             }
         }
 

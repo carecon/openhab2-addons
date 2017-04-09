@@ -16,6 +16,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  *
  * @author Patrick Boos - Initial contribution
  * @author Kuba Wolanin - Renamed labels
+ * @author Dimalo
  */
 public class ModelMapper {
 
@@ -31,10 +32,18 @@ public class ModelMapper {
                 return THING_TYPE_SENSOR_SWITCH;
             case "magnet":
                 return THING_TYPE_SENSOR_MAGNET;
-            case "plug":
-                return THING_TYPE_SENSOR_PLUG;
             case "cube":
                 return THING_TYPE_SENSOR_CUBE;
+            case "86sw1":
+                return THING_TYPE_SENSOR_AQARA1;
+            case "86sw2":
+                return THING_TYPE_SENSOR_AQARA2;
+            case "ctrl_neutral1":
+                return THING_TYPE_ACTOR_AQARA1;
+            case "ctrl_neutral2":
+                return THING_TYPE_ACTOR_AQARA2;
+            case "plug":
+                return THING_TYPE_ACTOR_PLUG;
         }
         return null;
     }

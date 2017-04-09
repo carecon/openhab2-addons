@@ -15,6 +15,10 @@ import org.eclipse.smarthome.core.thing.Thing;
 
 import com.google.gson.JsonObject;
 
+/**
+ * @author Patrick Boos - Initial contribution
+ * @author Dimalo
+ */
 public class XiaomiSensorCubeHandler extends XiaomiSensorBaseHandler {
 
     public XiaomiSensorCubeHandler(Thing thing) {

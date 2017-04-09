@@ -8,10 +8,15 @@
  */
 package org.openhab.binding.mihome.handler;
 
+import static org.openhab.binding.mihome.XiaomiGatewayBindingConstants.CHANNEL_BUTTON;
+
 import org.eclipse.smarthome.core.thing.Thing;
 
 import com.google.gson.JsonObject;
 
+/**
+ * @author Patrick Boos - Initial contribution
+ */
 public class XiaomiSensorSwitchHandler extends XiaomiSensorBaseHandler {
 
     public XiaomiSensorSwitchHandler(Thing thing) {
@@ -21,7 +26,7 @@ public class XiaomiSensorSwitchHandler extends XiaomiSensorBaseHandler {
     @Override
     void parseReport(JsonObject data) {
         if (data.has("status")) {
-            triggerChannel("button", data.get("status").getAsString().toUpperCase());
+            triggerChannel(CHANNEL_BUTTON, data.get("status").getAsString().toUpperCase());
         }
     }
 }

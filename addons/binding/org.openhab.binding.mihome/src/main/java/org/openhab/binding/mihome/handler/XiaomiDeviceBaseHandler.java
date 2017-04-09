@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -40,13 +39,15 @@ import com.google.gson.JsonParser;
  *
  * @author Patrick Boos - Initial contribution
  * @author Kuba Wolanin - Added voltage and low battery report
- * @author Dimalo - Added cube rotation, heartbeat and voltage handling, configurable window and motion delay
+ * @author Dimalo - Added cube rotation, heartbeat and voltage handling, configurable window and motion delay, Aqara
+ *         switches
  */
 public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implements XiaomiItemUpdateListener {
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
             Arrays.asList(THING_TYPE_GATEWAY, THING_TYPE_SENSOR_HT, THING_TYPE_SENSOR_MOTION, THING_TYPE_SENSOR_SWITCH,
-                    THING_TYPE_SENSOR_MAGNET, THING_TYPE_SENSOR_PLUG, THING_TYPE_SENSOR_CUBE));
+                    THING_TYPE_SENSOR_MAGNET, THING_TYPE_SENSOR_CUBE, THING_TYPE_SENSOR_AQARA1,
+                    THING_TYPE_SENSOR_AQARA2, THING_TYPE_ACTOR_AQARA1, THING_TYPE_ACTOR_AQARA2, THING_TYPE_ACTOR_PLUG));
 
     private static final long ONLINE_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours
 
@@ -92,8 +93,6 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        // TODO somehow it seems that this is called as well with LAST KNOWN STATE when openhab gets started. Can this
-        // be turned off somehow?
         logger.debug("Device {} on channel {} received command {}", itemId, channelUID, command);
         if (command.toString().toLowerCase().equals("refresh")) {
             return;
@@ -124,14 +123,6 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
     void parseCommand(String command, JsonObject data) {
         if (command.equals("report")) {
             parseReport(data);
-        } else if (command.equals("heartbeat") || command.equals("read_ack")) {
-            if (data.get("voltage") != null) {
-                Integer voltage = data.get("voltage").getAsInt();
-                updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
-                if (voltage < 2800) {
-                    triggerChannel(CHANNEL_BATTERY_LOW, "LOW");
-                }
-            }
         } else {
             logger.debug("Device {} got unknown command {}", itemId, command);
         }

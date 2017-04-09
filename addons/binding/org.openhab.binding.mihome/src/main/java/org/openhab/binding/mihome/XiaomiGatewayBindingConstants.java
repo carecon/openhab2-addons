@@ -23,12 +23,18 @@ public class XiaomiGatewayBindingConstants {
 
     public final static ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
     public final static ThingTypeUID THING_TYPE_GATEWAY = new ThingTypeUID(BINDING_ID, "gateway");
+    // sensors
     public final static ThingTypeUID THING_TYPE_SENSOR_HT = new ThingTypeUID(BINDING_ID, "sensor_ht");
     public final static ThingTypeUID THING_TYPE_SENSOR_MOTION = new ThingTypeUID(BINDING_ID, "sensor_motion");
     public final static ThingTypeUID THING_TYPE_SENSOR_SWITCH = new ThingTypeUID(BINDING_ID, "sensor_switch");
     public final static ThingTypeUID THING_TYPE_SENSOR_MAGNET = new ThingTypeUID(BINDING_ID, "sensor_magnet");
-    public final static ThingTypeUID THING_TYPE_SENSOR_PLUG = new ThingTypeUID(BINDING_ID, "sensor_plug");
     public final static ThingTypeUID THING_TYPE_SENSOR_CUBE = new ThingTypeUID(BINDING_ID, "sensor_cube");
+    public final static ThingTypeUID THING_TYPE_SENSOR_AQARA1 = new ThingTypeUID(BINDING_ID, "86sw1");
+    public final static ThingTypeUID THING_TYPE_SENSOR_AQARA2 = new ThingTypeUID(BINDING_ID, "86sw2");
+    // actors
+    public final static ThingTypeUID THING_TYPE_ACTOR_PLUG = new ThingTypeUID(BINDING_ID, "sensor_plug");
+    public final static ThingTypeUID THING_TYPE_ACTOR_AQARA1 = new ThingTypeUID(BINDING_ID, "ctrl_neutral1");
+    public final static ThingTypeUID THING_TYPE_ACTOR_AQARA2 = new ThingTypeUID(BINDING_ID, "ctrl_neutral2");
 
     // List of all Channel ids
     public static final String CHANNEL_VOLTAGE = "voltage";
@@ -47,6 +53,8 @@ public class XiaomiGatewayBindingConstants {
     public static final String CHANNEL_LOAD_VOLTAGE = "loadVoltage";
     public static final String CHANNEL_LOAD_POWER = "loadPower";
     public static final String CHANNEL_POWER_CONSUMED = "powerConsumed";
+    // switch
+    public static final String CHANNEL_BUTTON = "button";
     // cube
     public static final String CHANNEL_CUBE_ACTION = "action";
     public static final String CHANNEL_CUBE_ROTATION_ANGLE = "rotationAngle";
@@ -59,6 +67,10 @@ public class XiaomiGatewayBindingConstants {
     public static final String CHANNEL_BRIGHTNESS = "brightness";
     public static final String CHANNEL_COLOR = "color";
     public static final String CHANNEL_COLOR_TEMPERATURE = "colorTemperature";
+    // aqara switches
+    public static final String CHANNEL_AQARA_CH0 = "sw1";
+    public static final String CHANNEL_AQARA_CH1 = "sw2";
+    public static final String CHANNEL_AQARA_DUAL_CH = "dual_sw";
 
     // Bridge config properties
     public static final String SERIAL_NUMBER = "serialNumber";
