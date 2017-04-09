@@ -64,6 +64,14 @@ public class ModelMapper {
                 return "Xiaomi Mi Smart Socket Plug";
             case "cube":
                 return "Xiaomi Mi Smart Cube";
+            case "86sw1":
+                return "Xiaomi Aqara Smart Switch 1 Button";
+            case "86sw2":
+                return "Xiaomi Aqara Smart Switch 2 Button";
+            case "ctrl_neutral1":
+                return "Xiaomi Aqara Wall Switch 1 Button";
+            case "ctrl_neutral2":
+                return "Xiaomi Aqara Wall Switch 1 Button";
         }
         return null;
     }

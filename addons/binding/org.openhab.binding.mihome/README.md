@@ -90,6 +90,19 @@ Number Cube_Battery <battery> { channel="mihome:sensor_cube:<ID>:voltage" }
 
 // Xiaomi Switch - see "xiaomi.rules" for action triggers
 Number Switch_Battery <battery> { channel="mihome:sensor_switch:<ID>:voltage" }
+
+// Xiaomi Aqara Battery Powered Switch 1- see "xiaomi.rules" for action triggers
+Number AqaraSwitch1_Battery <battery> { channel="mihome:86sw1:<ID>:voltage" }
+
+// Xiaomi Aqara Battery Powered Switch 2- see "xiaomi.rules" for action triggers
+Number AqaraSwitch2_Battery <battery> { channel="mihome:86sw2:<ID>:voltage" }
+
+// Xiaomi Aqara Main Powered Wall Switch 1
+Switch AqaraWallSwitch1 <switch> { channel="mihome:ctrl_neutral1:<ID>:sw1" }
+
+// Xiaomi Aqara Main Powered Wall Switch 2
+Switch AqaraWallSwitch1 <switch> { channel="mihome:ctrl_neutral2:<ID>:sw1" }
+Switch AqaraWallSwitch2 <switch> { channel="mihome:ctrl_neutral2:<ID>:sw2" }
 ```
 
 **xiaomi.rules:**
@@ -172,6 +185,57 @@ then
     } else {
         <ACTION>
     }
+end
+
+rule "Xiaomi Aqara Battery Powered 1 Button Switch"
+when
+    Channel "mihome:86sw1:<ID>:sw1" triggered
+then
+    var actionName = receivedEvent.getEvent()
+    switch(actionName) {
+        case "CLICK": {
+            <ACTION>
+        }
+        case "DOUBLE_CLICK": {
+            <ACTION>
+        }
+    }
+end
+
+rule "Xiaomi Aqara Battery Powered 2 Button Switch"
+when
+    Channel "mihome:86sw2:<ID>:sw1" triggered
+then
+    var actionName = receivedEvent.getEvent()
+    switch(actionName) {
+        case "CLICK": {
+            <ACTION>
+        }
+        case "DOUBLE_CLICK": {
+            <ACTION>
+        }
+    }
+end
+
+rule "Xiaomi Aqara Battery Powered 2 Button Switch"
+when
+    Channel "mihome:86sw2:<ID>:sw2" triggered
+then
+    var actionName = receivedEvent.getEvent()
+    switch(actionName) {
+        case "CLICK": {
+            <ACTION>
+        }
+        case "DOUBLE_CLICK": {
+            <ACTION>
+        }
+    }
+end
+rule "Xiaomi Aqara Battery Powered 2 Button Switch"
+when
+    Channel "mihome:86sw2:<ID>:dual_sw" triggered BOTH_CLICK
+then
+    <ACTION>
 end
 
 // This rule is applicable for every battery powered sensor device
