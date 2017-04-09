@@ -49,7 +49,7 @@
 	<channel-type id="batteryLevel" advanced="true">
 		<kind>trigger</kind>
 		<label>Low Battery Level</label>
-		<description>Triggers LOW event when voltage is below 2800 mv</description>
+		<description>Triggers LOW event when voltage is below 2800 mV</description>
 		<event>
 			<options>
 				<option value="LOW">low</option>

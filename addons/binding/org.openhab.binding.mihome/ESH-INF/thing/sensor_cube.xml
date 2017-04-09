@@ -14,7 +14,10 @@
 
         <channels>
             <channel id="action" typeId="action"></channel>
-            <channel typeId="rotation" id="rotation"></channel>
+            <channel id="rotationAngle" typeId="rotationAngle"></channel>
+            <channel id="rotationTime" typeId="rotationTime"></channel>
+            <channel id="voltage" typeId="voltage" />
+            <channel id="batteryLevel" typeId="batteryLevel" />
         </channels>
 
         <config-description>
@@ -43,14 +46,35 @@
             </options>
         </event>
     </channel-type>
+
     <channel-type id="rotationAngle">
         <item-type>Number</item-type>
         <label>Cube rotation angle in degrees</label>
         <state readOnly="true" step="1" pattern="%d°"></state>
     </channel-type>
+
     <channel-type id="rotationTime">
     	<item-type>Number</item-type>
     	<label>Cube rotation time in milliseconds</label>
     	<state readOnly="false" step="1" pattern="%d ms"></state>
     </channel-type>
+
+    <channel-type id="voltage" advanced="true">
+        <item-type>Number</item-type>
+        <label>Battery Voltage</label>
+        <category>Battery Voltage</category>
+        <state pattern="%d mV" readOnly="true"></state>
+    </channel-type>
+
+    <channel-type id="batteryLevel" advanced="true">
+        <kind>trigger</kind>
+        <label>Low Battery Level</label>
+        <description>Triggers LOW event when voltage is below 2800 mV</description>
+        <event>
+            <options>
+                <option value="LOW">low</option>
+            </options>
+        </event>
+    </channel-type>
+
 </thing:thing-descriptions>
