@@ -123,6 +123,8 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
     void parseCommand(String command, JsonObject data) {
         if (command.equals("report")) {
             parseReport(data);
+        } else if (command.equals("heartbeat") || command.equals("read_ack")) {
+            return;
         } else {
             logger.debug("Device {} got unknown command {}", itemId, command);
         }

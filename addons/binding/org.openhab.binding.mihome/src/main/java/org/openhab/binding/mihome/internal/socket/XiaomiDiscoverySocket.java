@@ -47,6 +47,9 @@ public class XiaomiDiscoverySocket extends XiaomiSocket {
 
             socketReceiveThread = new ReceiverThread();
             socketReceiveThread.start();
+            if (socket != null) {
+                openSockets.add(this);
+            }
         }
     }
 

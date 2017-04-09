@@ -40,7 +40,7 @@ public abstract class XiaomiSocket {
     private static List<XiaomiSocketListener> listeners = new CopyOnWriteArrayList<>();
     private static final JsonParser parser = new JsonParser();
     protected static Logger logger = LoggerFactory.getLogger(XiaomiSocket.class);
-    private static ArrayList<XiaomiSocket> openSockets = new ArrayList<XiaomiSocket>();
+    static ArrayList<XiaomiSocket> openSockets = new ArrayList<XiaomiSocket>();
 
     int port = 0;
     DatagramSocket socket;
@@ -55,16 +55,13 @@ public abstract class XiaomiSocket {
 
     /**
      * Sets up an {@link XiaomiSocket} with the MiHome multicast address and a specific port
-     * 
+     *
      * @param port - the socket will be bound to this port
      */
     public XiaomiSocket(int port) {
         this.port = port;
 
         setupSocket();
-        if (socket != null) {
-            openSockets.add(this);
-        }
     }
 
     abstract void setupSocket();
@@ -142,6 +139,7 @@ public abstract class XiaomiSocket {
      * @return - a list of already open sockets
      */
     public static ArrayList<XiaomiSocket> getOpenSockets() {
+        logger.debug("Open Sockets are {}", openSockets.toString());
         return openSockets;
     }
 
@@ -189,7 +187,7 @@ public abstract class XiaomiSocket {
 
         /**
          * Notifies all {@link XiaomiSocketListener} on the parent {@link XiaomiSocket}
-         * 
+         *
          * @param listeners - a list of all {@link XiaomiSocketListener} to notify
          * @param message - the data message as {@link JsonObject}
          */

@@ -92,13 +92,21 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
         }
 
         // Use existing socket for this port (if one exists)
-        for (XiaomiSocket s : XiaomiSocket.getOpenSockets()) {
-            if (s.getPort() == port) {
-                socket = (XiaomiBridgeSocket) s;
-                break;
+        ArrayList<XiaomiSocket> sockets = XiaomiSocket.getOpenSockets();
+        if (sockets != null && !(sockets.isEmpty())) {
+            for (XiaomiSocket s : sockets) {
+                logger.debug("Checking existing socket this BridgeHandler");
+                if (s.getPort() == port) {
+                    logger.debug("Using existing socket on port {} for this BridgeHandler", port);
+                    socket = (XiaomiBridgeSocket) s;
+                    break;
+                }
+                socket = new XiaomiBridgeSocket(port);
             }
+        } else {
             socket = new XiaomiBridgeSocket(port);
         }
+        // socket = new XiaomiBridgeSocket(port);
         socket.registerListener(this);
 
         scheduler.schedule(new Runnable() {

@@ -61,8 +61,7 @@ public class XiaomiHandlerFactory extends BaseThingHandlerFactory {
         if (XiaomiBridgeHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             ThingUID miBridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
             return super.createThing(thingTypeUID, configuration, miBridgeUID, null);
-        }
-        if (XiaomiDeviceBaseHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+        } else if (XiaomiDeviceBaseHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             ThingUID itemUID = getItemUID(thingTypeUID, thingUID, configuration, bridgeUID);
             return super.createThing(thingTypeUID, configuration, itemUID, bridgeUID);
         }
