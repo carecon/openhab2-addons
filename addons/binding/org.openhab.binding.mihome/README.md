@@ -53,8 +53,6 @@ The binding requires port `9898` to not be used by any other service on the syst
 ## Full Example
 
 **Please consider additional configuration options for things:**
-1. Motion Sensor:
-    * can be configured, after which time the Item should switch back to "off"
 1. Window Sensor
     * can be configured, after which time the isOpenedAlarm shall trigger (see example below)
 
@@ -76,6 +74,7 @@ Number HT_Battery <battery> { channel="mihome:sensor_ht:<ID>:voltage" }
 
 // Xiaomi Motion Sensor
 Switch MotionSensor_MotionStatus <motion>  { channel="mihome:sensor_motion:<ID>:motion" }
+Number MotionSensor_MotionTimer <clock> { channel="mihome:sensor_motion:<ID>:motionOffTimer"}
 DateTime MotionSensor_LastMotion "[%1$tY-%1$tm-%1$td  %1$tH:%1$tM]" <clock-on> { channel="mihome:sensor_motion:<ID>:lastMotion" }
 Number MotionSensor_Battery <battery> { channel="mihome:sensor_motion:<ID>:voltage" }
 
