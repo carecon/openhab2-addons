@@ -44,6 +44,7 @@ public class XiaomiGatewayBindingConstants {
     public static final String CHANNEL_HUMIDITY = "humidity";
     // motion sensor
     public static final String CHANNEL_MOTION = "motion";
+    public static final String CHANNEL_MOTION_OFF_TIMER = "motionOffTimer";
     public static final String CHANNEL_LAST_MOTION = "lastMotion";
     // window sensor
     public static final String CHANNEL_IS_OPEN = "isOpen";
