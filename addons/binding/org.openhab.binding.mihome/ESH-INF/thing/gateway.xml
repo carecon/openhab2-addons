@@ -18,9 +18,10 @@
         <channels>
             <channel id="brightness" typeId="brightness"/>
             <channel id="color" typeId="color"/>
-            <channel id="colorTemperature" typeId="colorTemperature"/><channel typeId="enableSound" id="enableSound"></channel>
-        	<channel typeId="sound" id="sound"></channel>
-        	<channel typeId="volume" id="volume"></channel>
+            <channel id="colorTemperature" typeId="colorTemperature"/>
+            <channel typeId="enableSound" id="enableSound"></channel>
+            <channel typeId="sound" id="sound"></channel>
+            <channel typeId="volume" id="volume"></channel>
         </channels>
 
         <config-description>
@@ -64,11 +65,13 @@
             <tag>ColorTemperature</tag>
         </tags>
     </channel-type>
+    
     <channel-type id="sound">
     	<item-type>Number</item-type>
     	<label>Sound Selector</label>
     	<state step="1" min="0" max="29"></state>
     </channel-type>
+    
     <channel-type id="volume">
     	<item-type>Dimmer</item-type>
     	<label>Sound Volume</label>
@@ -76,6 +79,7 @@
     	<category>SoundVolume</category>
     	<state max="100" min="0" step="1" pattern="%d %%" readOnly="false"></state>
     </channel-type>
+    
     <channel-type id="enableSound">
     	<item-type>Switch</item-type>
     	<label>Switch to turn sound off when playing</label>
