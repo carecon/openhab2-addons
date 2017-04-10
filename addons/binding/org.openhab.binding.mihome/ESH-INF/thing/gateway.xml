@@ -60,7 +60,6 @@
         <item-type>Dimmer</item-type>
         <label>Color Temperature</label>
         <description>Allows to control the color temperature of light.</description>
-        <category>DimmableCT</category>
         <tags>
             <tag>ColorTemperature</tag>
         </tags>
