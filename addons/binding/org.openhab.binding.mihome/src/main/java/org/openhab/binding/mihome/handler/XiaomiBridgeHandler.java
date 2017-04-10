@@ -34,7 +34,6 @@ import org.openhab.binding.mihome.internal.EncryptionHelper;
 import org.openhab.binding.mihome.internal.XiaomiItemUpdateListener;
 import org.openhab.binding.mihome.internal.discovery.XiaomiItemDiscoveryService;
 import org.openhab.binding.mihome.internal.socket.XiaomiBridgeSocket;
-import org.openhab.binding.mihome.internal.socket.XiaomiSocket;
 import org.openhab.binding.mihome.internal.socket.XiaomiSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,23 +89,28 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
         } catch (UnknownHostException e) {
             logger.error("Bridge IP/PORT config is not set or not valid");
         }
+        /*
+         * TODO:make this code work, for now deactivated - seems it's confusing itself when restarting the binding:
+         * The Handler takes a socket, which is then closed right after that
+         * 
+         * // Use existing socket for this port (if one exists)
+         * ArrayList<XiaomiSocket> sockets = XiaomiSocket.getOpenSockets();
+         * if (sockets != null && !(sockets.isEmpty())) {
+         * for (XiaomiSocket s : sockets) {
+         * logger.debug("Checking existing socket this BridgeHandler");
+         * if (s.getPort() == port) {
+         * logger.debug("Using existing socket on port {} for this BridgeHandler", port);
+         * socket = (XiaomiBridgeSocket) s;
+         * break;
+         * }
+         * socket = new XiaomiBridgeSocket(port);
+         * }
+         * } else {
+         * socket = new XiaomiBridgeSocket(port);
+         * }
+         */
 
-        // Use existing socket for this port (if one exists)
-        ArrayList<XiaomiSocket> sockets = XiaomiSocket.getOpenSockets();
-        if (sockets != null && !(sockets.isEmpty())) {
-            for (XiaomiSocket s : sockets) {
-                logger.debug("Checking existing socket this BridgeHandler");
-                if (s.getPort() == port) {
-                    logger.debug("Using existing socket on port {} for this BridgeHandler", port);
-                    socket = (XiaomiBridgeSocket) s;
-                    break;
-                }
-                socket = new XiaomiBridgeSocket(port);
-            }
-        } else {
-            socket = new XiaomiBridgeSocket(port);
-        }
-        // socket = new XiaomiBridgeSocket(port);
+        socket = new XiaomiBridgeSocket(port);
         socket.registerListener(this);
 
         scheduler.schedule(new Runnable() {
