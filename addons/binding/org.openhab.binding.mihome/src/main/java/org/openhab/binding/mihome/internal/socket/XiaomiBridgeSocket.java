@@ -31,23 +31,21 @@ public class XiaomiBridgeSocket extends XiaomiSocket {
      * Starts the {@link ReceiverThread} for the socket.
      */
     @Override
-    void setupSocket() {
-        synchronized (XiaomiBridgeSocket.class) {
-            try {
-                logger.debug("Setup socket");
-                socket = new MulticastSocket(port); // must bind receive side
-                ((MulticastSocket) socket).joinGroup(InetAddress.getByName(MCAST_ADDR));
-                logger.debug("Initialized socket to {}:{} on {}:{}", socket.getInetAddress(), socket.getPort(),
-                        socket.getLocalAddress(), socket.getLocalPort());
-            } catch (IOException e) {
-                logger.error("Setup socket error", e);
-            }
+    synchronized void setupSocket() {
+        try {
+            logger.debug("Setup socket");
+            socket = new MulticastSocket(port); // must bind receive side
+            ((MulticastSocket) socket).joinGroup(InetAddress.getByName(MCAST_ADDR));
+            logger.debug("Initialized socket to {}:{} on {}:{}", socket.getInetAddress(), socket.getPort(),
+                    socket.getLocalAddress(), socket.getLocalPort());
+        } catch (IOException e) {
+            logger.error("Setup socket error", e);
+        }
 
-            socketReceiveThread = new ReceiverThread();
-            socketReceiveThread.start();
-            if (socket != null) {
-                openSockets.add(this);
-            }
+        socketReceiveThread = new ReceiverThread();
+        socketReceiveThread.start();
+        if (socket != null) {
+            openSockets.add(this);
         }
     }
 }
