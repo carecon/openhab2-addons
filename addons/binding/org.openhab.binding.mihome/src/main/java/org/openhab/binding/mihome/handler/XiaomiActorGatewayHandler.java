@@ -46,24 +46,32 @@ public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
         switch (channelUID.getId()) {
             case CHANNEL_BRIGHTNESS:
                 if (command instanceof PercentType) {
-                    lastBrightness = ((PercentType) command).floatValue();
-                    writeBridgeLightColor(getGatewayLightColor(), lastBrightness / 100);
+                    float newBright = ((PercentType) command).floatValue();
+                    if (lastBrightness != newBright) {
+                        lastBrightness = newBright;
+                        logger.debug("actual brigthness {}", lastBrightness);
+                        writeBridgeLightColor(getGatewayLightColor(), lastBrightness / 100);
+                    } else {
+                        logger.debug("Do not send this command, value {} already set", newBright);
+                    }
                 } else if (command instanceof OnOffType) {
                     if (lastBrightness == -1) {
                         try {
                             Iterator<Item> iter = linkRegistry
-                                    .getLinkedItems(
-                                            new ChannelUID(THING_TYPE_GATEWAY + this.getItemId() + CHANNEL_BRIGHTNESS))
-                                    .iterator();
+                                    .getLinkedItems(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS)).iterator();
                             while (iter.hasNext()) {
-                                if (iter.next().getState() instanceof PercentType) {
-                                    lastBrightness = Float.parseFloat(iter.next().getState().toString());
+                                Item I = iter.next();
+                                if (I.getState() instanceof PercentType) {
+                                    lastBrightness = Float.parseFloat(I.getState().toString());
+                                    logger.debug("last brightness value found: {}", lastBrightness);
                                 }
                             }
                         } catch (NumberFormatException e) {
                             lastBrightness = 1;
+                            logger.debug("No last brightness value found - assuming 100");
                         }
                     }
+
                     writeBridgeLightColor(getGatewayLightColor(), command == OnOffType.ON ? lastBrightness / 100 : 0);
                 } else {
                     logger.error("Can't handle command {} on channel {}", command, channelUID);
@@ -131,7 +139,7 @@ public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
     void parseReport(JsonObject data) {
         if (data.has("rgb")) {
             long rgb = data.get("rgb").getAsLong();
-            updateState(CHANNEL_BRIGHTNESS, new PercentType((int) (((rgb >> 24) & 0xff) / 2.55)));
+            updateState(CHANNEL_BRIGHTNESS, new PercentType((int) (((rgb >> 24) & 0xff))));
             updateState(CHANNEL_COLOR,
                     HSBType.fromRGB((int) (rgb >> 16) & 0xff, (int) (rgb >> 8) & 0xff, (int) rgb & 0xff));
         }
@@ -175,8 +183,8 @@ public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
     }
 
     private void writeBridgeLightColor(int color, float brightness) {
-        int brightnessInt = (((int) (brightness * 255)) & 0xff) << 24;
-        writeBridgeLightColor((color & 0xffffff) | brightnessInt);
+        long brightnessInt = (int) (brightness * 100) << 24;
+        writeBridgeLightColor((color & 0xffffff) | brightnessInt & 0xff000000);
     }
 
     private void writeBridgeLightColor(long color) {
