@@ -48,7 +48,9 @@ public class XiaomiGatewayBindingConstants {
     public static final String CHANNEL_LAST_MOTION = "lastMotion";
     // window sensor
     public static final String CHANNEL_IS_OPEN = "isOpen";
+    public static final String CHANNEL_LAST_OPENED = "lastOpened";
     public static final String CHANNEL_OPEN_ALARM = "isOpenAlarm";
+    public static final String CHANNEL_OPEN_ALARM_TIMER = "isOpenAlarmTimer";
     // plug
     public static final String CHANNEL_POWER_ON = "powerOn";
     public static final String CHANNEL_LOAD_VOLTAGE = "loadVoltage";
@@ -83,9 +85,4 @@ public class XiaomiGatewayBindingConstants {
 
     // Item config properties
     public static final String ITEM_ID = "itemId";
-    // motion sensor
-    public static final String NO_MOTION = "noMotionAfter";
-    // window sensor
-    public static final String ALARM = "alarmAfter";
-
 }

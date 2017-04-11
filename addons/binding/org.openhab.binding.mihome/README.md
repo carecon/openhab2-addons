@@ -76,7 +76,8 @@ Number HT_Battery <battery> { channel="mihome:sensor_ht:<ID>:voltage" }
 
 // Xiaomi Motion Sensor
 Switch MotionSensor_MotionStatus <motion>  { channel="mihome:sensor_motion:<ID>:motion" }
-Number MotionSensor_MotionTimer <clock> { channel="mihome:sensor_motion:<ID>:motionOffTimer"}
+// minimum 5 seconds
+Number MotionSensor_MotionTimer <clock> { channel="mihome:sensor_motion:<ID>:motionOffTimer" }
 DateTime MotionSensor_LastMotion "[%1$tY-%1$tm-%1$td  %1$tH:%1$tM]" <clock-on> { channel="mihome:sensor_motion:<ID>:lastMotion" }
 Number MotionSensor_Battery <battery> { channel="mihome:sensor_motion:<ID>:voltage" }
 
@@ -88,6 +89,9 @@ Number Plug_Consumption <line-incline> { channel="mihome:sensor_plug:<ID>:powerC
 
 // Xiaomi Window Switch
 Contact WindowSwitch_Status <window>  { channel="mihome:sensor_magnet:<ID>:isOpen" }
+// minimum 30 seconds
+Number WindowSwitch_AlarmTimer <clock> { channel="mihome:sensor_magnet:<ID>:isOpenAlarmTimer" }
+DateTime WindowSwitch_LastOpened "[%1$tY-%1$tm-%1$td  %1$tH:%1$tM]" <clock-on> { channel="mihome:sensor_magnet:<ID>:lastOpened" }
 Number WindowSwitch_Battery <battery> { channel="mihome:sensor_magnet:<ID>:voltage" }
 
 // Xiaomi Cube - see "xiaomi.rules" for action triggers
@@ -104,10 +108,10 @@ Number AqaraSwitch1_Battery <battery> { channel="mihome:86sw1:<ID>:voltage" }
 // Xiaomi Aqara Battery Powered Switch 2- see "xiaomi.rules" for action triggers
 Number AqaraSwitch2_Battery <battery> { channel="mihome:86sw2:<ID>:voltage" }
 
-// Xiaomi Aqara Main Powered Wall Switch 1
+// Xiaomi Aqara Mains Powered Wall Switch 1
 Switch AqaraWallSwitch1 <switch> { channel="mihome:ctrl_neutral1:<ID>:sw1" }
 
-// Xiaomi Aqara Main Powered Wall Switch 2
+// Xiaomi Aqara Mains Powered Wall Switch 2
 Switch AqaraWallSwitch1 <switch> { channel="mihome:ctrl_neutral2:<ID>:sw1" }
 Switch AqaraWallSwitch2 <switch> { channel="mihome:ctrl_neutral2:<ID>:sw2" }
 ```
