@@ -10,6 +10,8 @@ package org.openhab.binding.mihome.handler;
 
 import static org.openhab.binding.mihome.XiaomiGatewayBindingConstants.*;
 
+import java.util.Iterator;
+
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
@@ -29,6 +31,8 @@ import com.google.gson.JsonObject;
  */
 public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
 
+    private float lastBrightness = -1;
+
     public XiaomiActorGatewayHandler(Thing thing) {
         super(thing);
     }
@@ -38,9 +42,25 @@ public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
         switch (channelUID.getId()) {
             case CHANNEL_BRIGHTNESS:
                 if (command instanceof PercentType) {
-                    writeBridgeLightColor(getGatewayLightColor(), ((PercentType) command).floatValue() / 100);
+                    lastBrightness = ((PercentType) command).floatValue();
+                    writeBridgeLightColor(getGatewayLightColor(), lastBrightness / 100);
                 } else if (command instanceof OnOffType) {
-                    writeBridgeLightColor(getGatewayLightColor(), command == OnOffType.ON ? 1 : 0);
+                    if (lastBrightness == -1) {
+                        try {
+                            Iterator<Item> iter = linkRegistry
+                                    .getLinkedItems(
+                                            new ChannelUID(THING_TYPE_GATEWAY + this.getItemId() + CHANNEL_BRIGHTNESS))
+                                    .iterator();
+                            while (iter.hasNext()) {
+                                if (iter.next().getState() instanceof PercentType) {
+                                    lastBrightness = Float.parseFloat(iter.next().getState().toString());
+                                }
+                            }
+                        } catch (NumberFormatException e) {
+                            lastBrightness = 1;
+                        }
+                    }
+                    writeBridgeLightColor(getGatewayLightColor(), command == OnOffType.ON ? lastBrightness / 100 : 0);
                 } else {
                     logger.error("Can't handle command {} on channel {}", command, channelUID);
                 }
