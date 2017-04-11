@@ -44,7 +44,7 @@ public class XiaomiSensorMotionHandler extends XiaomiSensorBaseHandler {
 
     private Timer trigger = new Timer();
 
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public XiaomiSensorMotionHandler(Thing thing) {
         super(thing);

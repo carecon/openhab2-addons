@@ -11,6 +11,8 @@ package org.openhab.binding.mihome.handler;
 import static org.openhab.binding.mihome.XiaomiGatewayBindingConstants.CHANNEL_AQARA_CH0;
 
 import org.eclipse.smarthome.core.thing.Thing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -18,6 +20,8 @@ import com.google.gson.JsonObject;
  * @author Dimalo
  */
 public class XiaomiAqaraSensorSwitch1Handler extends XiaomiSensorBaseHandler {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public XiaomiAqaraSensorSwitch1Handler(Thing thing) {
         super(thing);

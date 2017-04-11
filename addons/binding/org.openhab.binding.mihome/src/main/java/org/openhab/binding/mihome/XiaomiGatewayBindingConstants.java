@@ -66,6 +66,7 @@ public class XiaomiGatewayBindingConstants {
     public static final String CHANNEL_GATEWAY_VOLUME = "volume";
     // gateway light
     public static final String CHANNEL_BRIGHTNESS = "brightness";
+    public static final String CHANNEL_ILLUMINATION = "illumination";
     public static final String CHANNEL_COLOR = "color";
     public static final String CHANNEL_COLOR_TEMPERATURE = "colorTemperature";
     // aqara switches

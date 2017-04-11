@@ -57,7 +57,7 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
 
     String itemId;
 
-    Logger logger = LoggerFactory.getLogger(XiaomiDeviceBaseHandler.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public XiaomiDeviceBaseHandler(Thing thing) {
         super(thing);

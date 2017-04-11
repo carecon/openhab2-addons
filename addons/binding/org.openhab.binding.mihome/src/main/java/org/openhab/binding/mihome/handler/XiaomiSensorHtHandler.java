@@ -12,6 +12,8 @@ import static org.openhab.binding.mihome.XiaomiGatewayBindingConstants.*;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -19,6 +21,8 @@ import com.google.gson.JsonObject;
  * @author Patrick Boos - Initial contribution
  */
 public class XiaomiSensorHtHandler extends XiaomiSensorBaseHandler {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public XiaomiSensorHtHandler(Thing thing) {
         super(thing);

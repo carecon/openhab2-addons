@@ -22,6 +22,8 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.openhab.binding.mihome.internal.ColorUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -32,6 +34,8 @@ import com.google.gson.JsonObject;
 public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
 
     private float lastBrightness = -1;
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public XiaomiActorGatewayHandler(Thing thing) {
         super(thing);
@@ -113,12 +117,27 @@ public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
     }
 
     @Override
+    void parseCommand(String command, JsonObject data) {
+        if (command.equals("report") || command.equals("heartbeat") || command.equals("write_ack")) {
+            parseReport(data);
+        } else if (command.equals("read_ack")) {
+            return;
+        } else {
+            logger.debug("Device {} got unknown command {}", itemId, command);
+        }
+    }
+
+    @Override
     void parseReport(JsonObject data) {
         if (data.has("rgb")) {
             long rgb = data.get("rgb").getAsLong();
-            updateState(CHANNEL_BRIGHTNESS, new PercentType((int) (((rgb >> 32) & 0xff) / 2.55)));
+            updateState(CHANNEL_BRIGHTNESS, new PercentType((int) (((rgb >> 24) & 0xff) / 2.55)));
             updateState(CHANNEL_COLOR,
                     HSBType.fromRGB((int) (rgb >> 16) & 0xff, (int) (rgb >> 8) & 0xff, (int) rgb & 0xff));
+        }
+        if (data.has("illumination")) {
+            int illu = data.get("illumination").getAsInt();
+            updateState(CHANNEL_ILLUMINATION, new DecimalType(illu));
         }
     }
 
@@ -156,8 +175,8 @@ public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
     }
 
     private void writeBridgeLightColor(int color, float brightness) {
-        long brightnessInt = ((long) (brightness * 255)) * 256 * 256 * 256;
-        writeBridgeLightColor((color & 0xffffff) | (brightnessInt & 0xff000000));
+        int brightnessInt = (((int) (brightness * 255)) & 0xff) << 24;
+        writeBridgeLightColor((color & 0xffffff) | brightnessInt);
     }
 
     private void writeBridgeLightColor(long color) {

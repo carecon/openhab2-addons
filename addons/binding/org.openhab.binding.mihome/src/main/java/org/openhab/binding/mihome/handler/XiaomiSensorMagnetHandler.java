@@ -12,6 +12,8 @@ import static org.openhab.binding.mihome.XiaomiGatewayBindingConstants.*;
 
 import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -20,6 +22,8 @@ import com.google.gson.JsonObject;
  * @author Dimalo
  */
 public class XiaomiSensorMagnetHandler extends XiaomiSensorBaseHandler {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public XiaomiSensorMagnetHandler(Thing thing) {
         super(thing);

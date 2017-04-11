@@ -56,7 +56,7 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
     private final static JsonParser parser = new JsonParser();
 
-    private Logger logger = LoggerFactory.getLogger(XiaomiBridgeHandler.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     private List<XiaomiItemUpdateListener> itemListeners = new ArrayList<>();
     private List<XiaomiItemUpdateListener> itemDiscoveryListeners = new ArrayList<>();
@@ -92,7 +92,7 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
         /*
          * TODO:make this code work, for now deactivated - seems it's confusing itself when restarting the binding:
          * The Handler takes a socket, which is then closed right after that
-         * 
+         *
          * // Use existing socket for this port (if one exists)
          * ArrayList<XiaomiSocket> sockets = XiaomiSocket.getOpenSockets();
          * if (sockets != null && !(sockets.isEmpty())) {
