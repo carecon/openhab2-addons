@@ -60,9 +60,11 @@ The binding requires port `9898` to not be used by any other service on the syst
 
 ```
 // Xiaomi Gateway
+Switch Gateway_LightSwitch <light> { channel="mihome:gateway:<ID>:brightness" }
 Dimmer Gateway_Brightness <dimmablelight> { channel="mihome:gateway:<ID>:brightness" }
 Color Gateway_Color <rgb> { channel="mihome:gateway:<ID>:color" }
 Dimmer Gateway_ColorTemperature <heating> { channel="mihome:gateway:<ID>:colorTemperature" }
+Number Gateway_AmbientLight <sun> { channel="mihome:gateway:<ID>:illumination" }
 Number Gateway_Sound <soundvolume-0> { channel="mihome:gateway:<ID>:sound" }
 Switch Gateway_SoundSwitch <soundvolume_mute> { channel="mihome:gateway:<ID>:enableSound" }
 Dimmer Gateway_SoundVolume <soundvolume> { channel="mihome:gateway:<ID>:volume" }
