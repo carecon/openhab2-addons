@@ -10,7 +10,7 @@ from the [Google Play](https://play.google.com/store/apps/details?id=com.xiaomi.
 * Install the binding
 * Setup Gateway to be discoverable
 
-    1. Add Gateway 2 to your WiFi Network
+    1. Add Gateway 2 or 3 to your WiFi Network
     1. Install Mi Home app from [Google Play](https://play.google.com/store/apps/details?id=com.xiaomi.smarthome) or [AppStore](https://itunes.apple.com/app/mi-home-xiaomi-for-your-smarthome/id957323480) (your phone may need to be changed to English language first)
     1. Set your region to Mainland China under Settings -> Locale (seems to be required)
     1. Update gateway (maybe multiple times)
@@ -44,17 +44,13 @@ There are two ways of connecting Xiaomi devices to the gateway:
     1. The device appears in openHAB thing Inbox
 
 * If you don't want to hear the chinese voice every time, you can disable it by setting the volume to minimum in the MiHome App (same for the blinking light)
-* The devices don't need an internet connection to be working after you have set up the developer mode BUT you won't be able to connect to them via App anymore
+* The devices don't need an internet connection to be working after you have set up the developer mode BUT you won't be able to connect to them via App anymore - easiest way is to block their outgoing internet connection in your router
 
 ## Important information
 
 The binding requires port `9898` to not be used by any other service on the system.
 
 ## Full Example
-
-**Please consider additional configuration options for things:**
-1. Window Sensor
-    * can be configured, after which time the isOpenedAlarm shall trigger (see example below)
 
 **xiaomi.items:**
 
