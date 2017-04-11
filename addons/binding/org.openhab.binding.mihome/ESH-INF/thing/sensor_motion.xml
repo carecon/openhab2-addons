@@ -40,7 +40,7 @@
         <label>Motion Off Timer</label>
         <description>Time in seconds, after which the Motion Switch is set to "OFF" (Default 120 sec, Min 5 sec)</description>
         <category>Motion</category>
-        <state readOnly="false" min="1" pattern="%d sec" step="1"></state>
+        <state readOnly="false" min="5" pattern="%d sec" step="1"></state>
     </channel-type>
 
 	<channel-type id="lastMotion">
