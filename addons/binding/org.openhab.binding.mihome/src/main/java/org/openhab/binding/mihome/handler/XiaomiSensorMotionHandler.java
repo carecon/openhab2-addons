@@ -32,13 +32,13 @@ public class XiaomiSensorMotionHandler extends XiaomiSensorBaseHandler {
 
     private static final int DEFAULT_OFF_TIMER = 120;
     private Integer noMotionAfter = DEFAULT_OFF_TIMER;
-
-    private DateTimeType lastMotion;
+    private boolean taskIsActive;
 
     private class TimerAction extends TimerTask {
         @Override
-        public void run() {
+        public synchronized void run() {
             updateState(CHANNEL_MOTION, OnOffType.OFF);
+            taskIsActive = false;
         }
     };
 
@@ -53,22 +53,27 @@ public class XiaomiSensorMotionHandler extends XiaomiSensorBaseHandler {
     @Override
     void parseReport(JsonObject data) {
         boolean hasMotion = data.has("status") && data.get("status").getAsString().equals("motion");
-        DateTimeType now = new DateTimeType();
-        if (hasMotion) {
-            updateState(CHANNEL_MOTION, OnOffType.ON);
-            int noMotionAfterMillis = noMotionAfter * 1000;
-            long nowMillis = now.getCalendar().getTimeInMillis();
-            long lastMotionMillis = (lastMotion != null) ? lastMotion.getCalendar().getTimeInMillis()
-                    : nowMillis - noMotionAfterMillis - 1;
-            if (nowMillis < lastMotionMillis + noMotionAfterMillis) {
-                logger.debug("Cancel running off timer and reschedule");
-                trigger.cancel();
-                trigger = new Timer();
+        synchronized (this) {
+            if (hasMotion) {
+                updateState(CHANNEL_MOTION, OnOffType.ON);
+                cancelRunningTimer();
+                updateState(CHANNEL_LAST_MOTION, new DateTimeType());
+                logger.debug("Set off timer to {} sec", noMotionAfter);
+                trigger.schedule(new TimerAction(), noMotionAfter * 1000);
+                taskIsActive = true;
             }
-            updateState(CHANNEL_LAST_MOTION, now);
-            lastMotion = now;
-            logger.debug("Set off timer to {} sec", noMotionAfter);
-            trigger.schedule(new TimerAction(), noMotionAfterMillis);
+        }
+    }
+
+    /**
+    *
+    */
+    private void cancelRunningTimer() {
+        if (taskIsActive) {
+            logger.debug("Cancel running timer");
+            trigger.cancel();
+            trigger = new Timer();
+            taskIsActive = false;
         }
     }
 

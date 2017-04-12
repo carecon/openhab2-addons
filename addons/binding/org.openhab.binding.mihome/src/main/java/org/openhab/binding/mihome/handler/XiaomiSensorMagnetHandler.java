@@ -32,13 +32,14 @@ public class XiaomiSensorMagnetHandler extends XiaomiSensorBaseHandler {
 
     private static final int DEFAULT_TIMER = 300;
     private Integer triggerAfter = DEFAULT_TIMER;
-
-    private DateTimeType lastOpened;
+    private boolean taskIsActive;
 
     private class TimerAction extends TimerTask {
+
         @Override
-        public void run() {
+        public synchronized void run() {
             triggerChannel(CHANNEL_OPEN_ALARM, "ALARM");
+            taskIsActive = false;
         }
     };
 
@@ -55,22 +56,29 @@ public class XiaomiSensorMagnetHandler extends XiaomiSensorBaseHandler {
         if (data.has("status")) {
             boolean isOpen = data.get("status").getAsString().equals("open");
             updateState(CHANNEL_IS_OPEN, isOpen ? OpenClosedType.OPEN : OpenClosedType.CLOSED);
-            if (isOpen) {
-                DateTimeType now = new DateTimeType();
-                int triggerAfterMillis = triggerAfter * 1000;
-                long nowMillis = now.getCalendar().getTimeInMillis();
-                long lastOpenedMillis = (lastOpened != null) ? lastOpened.getCalendar().getTimeInMillis()
-                        : nowMillis - triggerAfterMillis - 1;
-                if (nowMillis < lastOpenedMillis + triggerAfterMillis) {
-                    logger.debug("Cancel running alarm timer and reschedule");
-                    trigger.cancel();
-                    trigger = new Timer();
+            synchronized (this) {
+                if (isOpen) {
+                    cancelRunningTimer();
+                    updateState(CHANNEL_LAST_OPENED, new DateTimeType());
+                    logger.debug("Set alarm timer to {} sec", triggerAfter);
+                    trigger.schedule(new TimerAction(), triggerAfter * 1000);
+                    taskIsActive = true;
+                } else {
+                    cancelRunningTimer();
                 }
-                updateState(CHANNEL_LAST_OPENED, now);
-                lastOpened = now;
-                logger.debug("Set alarm timer to {} sec", triggerAfter);
-                trigger.schedule(new TimerAction(), triggerAfterMillis);
             }
+        }
+    }
+
+    /**
+     *
+     */
+    private void cancelRunningTimer() {
+        if (taskIsActive) {
+            logger.debug("Cancel running alarm timer");
+            trigger.cancel();
+            trigger = new Timer();
+            taskIsActive = false;
         }
     }
 
