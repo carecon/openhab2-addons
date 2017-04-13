@@ -1,5 +1,6 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2010-2017 by the respective copyright holders.
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +21,7 @@ import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.openhab.binding.mihome.internal.socket.XiaomiSocket;
+import org.openhab.binding.mihome.internal.socket.XiaomiDiscoverySocket;
 import org.openhab.binding.mihome.internal.socket.XiaomiSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ public class XiaomiBridgeDiscoveryService extends AbstractDiscoveryService imple
     private static final int DISCOVERY_TIMEOUT = 10;
 
     private Logger logger = LoggerFactory.getLogger(XiaomiBridgeDiscoveryService.class);
+    private XiaomiDiscoverySocket socket;
 
     public XiaomiBridgeDiscoveryService() {
         super(SUPPORTED_THING_TYPES, DISCOVERY_TIMEOUT, false);
@@ -46,19 +48,21 @@ public class XiaomiBridgeDiscoveryService extends AbstractDiscoveryService imple
 
     @Override
     protected void startScan() {
+        socket = (socket == null) ? new XiaomiDiscoverySocket() : socket;
         logger.debug("Start scan");
-        XiaomiSocket.registerListener(this);
-
+        socket.registerListener(this);
         discoverGateways();
         waitUntilEnded();
-
-        XiaomiSocket.unregisterListener(this);
+        socket.unregisterListener(this);
     }
 
     @Override
     protected synchronized void stopScan() {
         super.stopScan();
         removeOlderResults(getTimestampOfLastScan());
+        if (socket != null) {
+            socket.unregisterListener(this);
+        }
     }
 
     private void waitUntilEnded() {
@@ -77,14 +81,16 @@ public class XiaomiBridgeDiscoveryService extends AbstractDiscoveryService imple
     }
 
     @Override
-    public void onDataReceived(String command, JsonObject data) {
-        if (command.equals("iam")) {
+    public void onDataReceived(JsonObject data) {
+        logger.debug("Received message {}", data.toString());
+        if (data.get("cmd").getAsString().equals("iam")) {
             getGatewayInfo(data);
         }
     }
 
     private void discoverGateways() {
-        XiaomiSocket.sendMessage("{\"cmd\": \"whois\"}");
+        logger.debug("Discovering gateways");
+        socket.sendMessage("{\"cmd\":\"whois\"}");
     }
 
     private void getGatewayInfo(JsonObject jobject) {

@@ -13,6 +13,7 @@
 
 		<channels>
 			<channel id="motion" typeId="motion" />
+            <channel id="motionOffTimer" typeId="motionOffTimer" />
 			<channel id="lastMotion" typeId="lastMotion" />
 			<channel id="voltage" typeId="voltage" />
 			<channel id="batteryLevel" typeId="batteryLevel" />
@@ -24,22 +25,6 @@
 				<description>An identifier for the item connected.</description>
 				<required>true</required>
 			</parameter>
-			<parameter name="noMotionAfter" type="integer" readOnly="false">
-				<limitToOptions>true</limitToOptions>
-				<options>
-					<option value="120">120</option>
-					<option value="180">180</option>
-					<option value="300">300</option>
-					<option value="600">600</option>
-					<option value="1200">1200</option>
-					<option value="1800">1800</option>
-				</options>
-				<description>Time after which the motion sensor tells openhab, that there is no motion anymore.</description>
-				<unitLabel>Seconds</unitLabel>
-				<required>true</required>
-				<default>120</default>
-				<label>No motion detected after</label>
-			</parameter>
 		</config-description>
 	</thing-type>
 
@@ -49,6 +34,14 @@
 		<category>Motion</category>
 		<state readOnly="true"></state>
 	</channel-type>
+
+    <channel-type id="motionOffTimer">
+        <item-type>Number</item-type>
+        <label>Motion Off Timer</label>
+        <description>Time in seconds, after which the Motion Switch is set to "OFF" (Default 120 sec, Min 5 sec)</description>
+        <category>Motion</category>
+        <state readOnly="false" min="5" pattern="%d sec" step="1"></state>
+    </channel-type>
 
 	<channel-type id="lastMotion">
 		<item-type>DateTime</item-type>
@@ -67,7 +60,7 @@
 	<channel-type id="batteryLevel" advanced="true">
 		<kind>trigger</kind>
 		<label>Low Battery Level</label>
-		<description>Triggers LOW event when voltage is below 2800 mv</description>
+		<description>Triggers LOW event when voltage is below 2800 mV</description>
 		<event>
 			<options>
 				<option value="LOW">low</option>

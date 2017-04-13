@@ -17,8 +17,12 @@
 
         <channels>
             <channel id="brightness" typeId="brightness"/>
+            <channel id="illumination" typeId="illumination"/>
             <channel id="color" typeId="color"/>
             <channel id="colorTemperature" typeId="colorTemperature"/>
+            <channel typeId="enableSound" id="enableSound"></channel>
+            <channel typeId="sound" id="sound"></channel>
+            <channel typeId="volume" id="volume"></channel>
         </channels>
 
         <config-description>
@@ -43,6 +47,15 @@
         </tags>
     </channel-type>
 
+    <channel-type id="illumination">
+        <item-type>Number</item-type>
+        <label>Illumination</label>
+        <description>
+            This channel shows the brightness of the environment of the gateway.
+        </description>
+        <state readOnly="true"></state>
+    </channel-type>
+
     <channel-type id="color">
         <item-type>Color</item-type>
         <label>Color</label>
@@ -57,10 +70,28 @@
         <item-type>Dimmer</item-type>
         <label>Color Temperature</label>
         <description>Allows to control the color temperature of light.</description>
-        <category>DimmableCT</category>
         <tags>
             <tag>ColorTemperature</tag>
         </tags>
+    </channel-type>
+    
+    <channel-type id="sound">
+    	<item-type>Number</item-type>
+    	<label>Sound Selector</label>
+    	<state step="1" min="0" max="29"></state>
+    </channel-type>
+    
+    <channel-type id="volume">
+    	<item-type>Dimmer</item-type>
+    	<label>Sound Volume</label>
+    	<description>This channel controls the volume of the gateway for playing sounds</description>
+    	<category>SoundVolume</category>
+    	<state max="100" min="0" step="1" pattern="%d %%" readOnly="false"></state>
+    </channel-type>
+    
+    <channel-type id="enableSound">
+    	<item-type>Switch</item-type>
+    	<label>Switch to turn sound off when playing</label>
     </channel-type>
 
 </thing:thing-descriptions>

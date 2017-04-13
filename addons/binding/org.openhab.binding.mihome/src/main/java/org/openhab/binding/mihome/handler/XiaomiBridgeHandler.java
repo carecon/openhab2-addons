@@ -1,5 +1,6 @@
 /**
- * Copyright (c) 2014-2016 by the respective copyright holders.
+ * Copyright (c) 2010-2017 by the respective copyright holders.
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,19 +9,17 @@
 package org.openhab.binding.mihome.handler;
 
 import static org.openhab.binding.mihome.XiaomiGatewayBindingConstants.*;
-import static org.openhab.binding.mihome.internal.ModelMapper.getThingTypeForModel;
 
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -29,12 +28,12 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ConfigStatusBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.openhab.binding.mihome.internal.EncryptionHelper;
 import org.openhab.binding.mihome.internal.XiaomiItemUpdateListener;
-import org.openhab.binding.mihome.internal.socket.XiaomiSocket;
+import org.openhab.binding.mihome.internal.discovery.XiaomiItemDiscoveryService;
+import org.openhab.binding.mihome.internal.socket.XiaomiBridgeSocket;
 import org.openhab.binding.mihome.internal.socket.XiaomiSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,19 +52,23 @@ import com.google.gson.JsonParser;
  */
 public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements XiaomiSocketListener {
 
-    private final static int ONLINE_TIMEOUT = 30000;
-
+    private static final int DISCOVERY_LOCK_TIME = 10000;
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
     private final static JsonParser parser = new JsonParser();
 
-    private Logger logger = LoggerFactory.getLogger(XiaomiBridgeHandler.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    private List<XiaomiItemUpdateListener> itemListeners = new CopyOnWriteArrayList<>();
+    private List<XiaomiItemUpdateListener> itemListeners = new ArrayList<>();
+    private List<XiaomiItemUpdateListener> itemDiscoveryListeners = new ArrayList<>();
 
-    private Map<String, JsonObject> xiaomiItems = new HashMap<>();
     private String token; // token of gateway
     private long lastDiscoveryTime;
     private Map<String, Long> lastOnlineMap = new HashMap<>();
+
+    private Configuration config;
+    private InetAddress host;
+    private int port;
+    private XiaomiBridgeSocket socket;
 
     public XiaomiBridgeHandler(Bridge bridge) {
         super(bridge);
@@ -79,22 +82,49 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
 
     @Override
     public void initialize() {
-        // Long running initialization should be done asynchronously in background.
-        XiaomiSocket.registerListener(this);
-        discoverItems();
+        try {
+            config = getThing().getConfiguration();
+            host = InetAddress.getByName(config.get(HOST).toString());
+            port = getConfigInteger(config, PORT);
+        } catch (UnknownHostException e) {
+            logger.error("Bridge IP/PORT config is not set or not valid");
+        }
+        /*
+         * TODO:make this code work, for now deactivated - seems it's confusing itself when restarting the binding:
+         * The Handler takes a socket, which is then closed right after that
+         *
+         * // Use existing socket for this port (if one exists)
+         * ArrayList<XiaomiSocket> sockets = XiaomiSocket.getOpenSockets();
+         * if (sockets != null && !(sockets.isEmpty())) {
+         * for (XiaomiSocket s : sockets) {
+         * logger.debug("Checking existing socket this BridgeHandler");
+         * if (s.getPort() == port) {
+         * logger.debug("Using existing socket on port {} for this BridgeHandler", port);
+         * socket = (XiaomiBridgeSocket) s;
+         * break;
+         * }
+         * socket = new XiaomiBridgeSocket(port);
+         * }
+         * } else {
+         * socket = new XiaomiBridgeSocket(port);
+         * }
+         */
 
-        scheduler.scheduleWithFixedDelay(new Runnable() {
+        socket = new XiaomiBridgeSocket(port);
+        socket.registerListener(this);
+
+        scheduler.schedule(new Runnable() {
             @Override
             public void run() {
-                updateGatewayStatus();
+                discoverItems();
             }
-        }, 10, 10, TimeUnit.SECONDS);
+        }, 100, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void dispose() {
         logger.error("dispose");
-        XiaomiSocket.unregisterListener(this);
+        socket.unregisterListener(this);
         super.dispose();
     }
 
@@ -104,15 +134,17 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
     }
 
     @Override
-    public void onDataReceived(String command, JsonObject message) {
+    public void onDataReceived(JsonObject message) {
+        logger.debug("Received message {}", message.toString());
         String sid = message.has("sid") ? message.get("sid").getAsString() : null;
+        String command = message.get("cmd").getAsString();
 
-        String token = message.has("token") ? message.get("token").getAsString() : null;
-        if (token != null) {
-            this.token = token;
-        }
+        updateDeviceStatus(sid);
+        updateStatus(ThingStatus.ONLINE);
 
-        if (command.equals("get_id_list_ack")) {
+        if (command.equals("heartbeat") && message.has("token")) {
+            this.token = message.get("token").getAsString();
+        } else if (command.equals("get_id_list_ack")) {
             JsonArray devices = parser.parse(message.get("data").getAsString()).getAsJsonArray();
             for (JsonElement deviceId : devices) {
                 String device = deviceId.getAsString();
@@ -120,60 +152,52 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
             }
             // as well get gateway status
             sendCommandToBridge("read", getGatewaySid());
+            return;
         } else if (command.equals("read_ack")) {
-            String model = message.get("model").getAsString();
-            ThingUID thingUID = getThingUID(model, sid);
-            if (thingUID != null) {
-                xiaomiItems.put(sid, message);
-            }
+            logger.debug("Device {} honored read request", sid);
+        } else if (command.equals("write_ack")) {
+            logger.debug("Device {} honored write request", sid);
         }
-
-        // device last seen update
-        if (sid != null) {
-            lastOnlineMap.put(sid, System.currentTimeMillis());
-
-            // update state for gateway
-            if (isGatewayOnline()) {
-                updateStatus(ThingStatus.ONLINE);
-            }
-        }
-
         notifyListeners(command, message);
     }
 
-    private ThingUID getThingUID(String model, String sid) {
-        ThingTypeUID thingType = getThingTypeForModel(model);
-        if (thingType == null) {
-            logger.error("Unknown discovered model: {}", model);
-            return null;
+    synchronized private void notifyListeners(String command, JsonObject message) {
+        boolean knownDevice = false;
+        String sid = message.get("sid").getAsString();
+
+        // Not a message to pass to any itemListener
+        if (sid == null) {
+            return;
         }
-
-        return new ThingUID(thingType, sid);
-    }
-
-    private void notifyListeners(String command, JsonObject message) {
         for (XiaomiItemUpdateListener itemListener : itemListeners) {
-            try {
-                String sid = message.get("sid").getAsString();
+            if (itemListener.getItemId().equals(sid)) {
+                try {
+                    itemListener.onItemUpdate(sid, command, message);
+                    knownDevice = true;
+                } catch (Exception e) {
+                    logger.error("An exception occurred while calling the BridgeHeartbeatListener", e);
+                }
+            }
+        }
+        if (!knownDevice) {
+            for (XiaomiItemUpdateListener itemListener : itemDiscoveryListeners) {
                 itemListener.onItemUpdate(sid, command, message);
-            } catch (Exception e) {
-                logger.error("An exception occurred while calling the BridgeHeartbeatListener", e);
             }
         }
     }
 
     public synchronized boolean registerItemListener(XiaomiItemUpdateListener listener) {
+        boolean result = false;
         if (listener == null) {
             throw new IllegalArgumentException("It's not allowed to pass a null XiaomiItemUpdateListener.");
         }
-        boolean result = itemListeners.add(listener);
-        if (result) {
-            onUpdate();
-
-            // inform the listener initially about all items (it will just look at own item)
-            for (Map.Entry<String, JsonObject> entry : new HashSet<>(xiaomiItems.entrySet())) {
-                listener.onItemUpdate(entry.getKey(), "read_ack", entry.getValue());
-            }
+        if (listener instanceof XiaomiItemDiscoveryService) {
+            result = !(itemDiscoveryListeners.contains(listener)) ? itemDiscoveryListeners.add(listener) : false;
+            logger.debug("Having {} Discovery listeners", itemDiscoveryListeners.size());
+        } else {
+            logger.debug("Adding item listener for device {}", listener.getItemId());
+            result = !(itemListeners.contains(listener)) ? itemListeners.add(listener) : false;
+            logger.debug("Having {} Item listeners", itemListeners.size());
         }
         return result;
     }
@@ -181,27 +205,21 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
     public synchronized boolean unregisterItemListener(XiaomiItemUpdateListener listener) {
         boolean result = itemListeners.remove(listener);
         if (result) {
-            onUpdate();
+            checkForDevices();
         }
         return result;
     }
 
-    private void onUpdate() {
+    private void checkForDevices() {
         if (isInitialized()) {
+            logger.debug("Discovering all items");
             discoverItems(); // this will as well send all items again to all listeners
         }
     }
 
     private void sendMessageToBridge(String message) {
-        try {
-            Configuration config = getThing().getConfiguration();
-            String host = (String) config.get(HOST);
-            int port = getConfigInteger(config, PORT);
-            XiaomiSocket.sendMessage(message, InetAddress.getByName(host), port);
-            logger.debug("Sent to bridge: {}", message);
-        } catch (UnknownHostException e) {
-            logger.error("Could not send message to bridge", e);
-        }
+        logger.debug("Send to bridge: {}", message);
+        socket.sendMessage(message, host, port);
     }
 
     private void sendCommandToBridge(String cmd) {
@@ -309,14 +327,13 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
     }
 
     private void discoverItems() {
-        if (System.currentTimeMillis() - lastDiscoveryTime > 10000) {
-            forceDiscovery();
+        if (System.currentTimeMillis() - lastDiscoveryTime > DISCOVERY_LOCK_TIME) {
+            logger.debug("Triggered discovery");
+            sendCommandToBridge("get_id_list");
+            lastDiscoveryTime = System.currentTimeMillis();
+        } else {
+            logger.debug("Triggered unneccessary discovery");
         }
-    }
-
-    private void forceDiscovery() {
-        sendCommandToBridge("get_id_list");
-        lastDiscoveryTime = System.currentTimeMillis();
     }
 
     boolean hasItemActivity(String itemId, long withinLastMillis) {
@@ -324,17 +341,10 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
         return lastOnlineTimeMillis != null && System.currentTimeMillis() - lastOnlineTimeMillis < withinLastMillis;
     }
 
-    private void updateGatewayStatus() {
-        updateStatus(isGatewayOnline() ? ThingStatus.ONLINE : ThingStatus.OFFLINE);
-    }
-
-    void updateDeviceStatus(String sid) {
+    private void updateDeviceStatus(String sid) {
         if (sid != null) {
             lastOnlineMap.put(sid, System.currentTimeMillis());
+            logger.debug("Updated \"last time seen\" for device {}", sid);
         }
-    }
-
-    private boolean isGatewayOnline() {
-        return hasItemActivity(getGatewaySid(), ONLINE_TIMEOUT);
     }
 }
