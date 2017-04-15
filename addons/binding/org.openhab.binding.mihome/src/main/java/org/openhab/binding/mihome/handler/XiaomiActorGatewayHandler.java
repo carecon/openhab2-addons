@@ -96,10 +96,14 @@ public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
                 break;
             case CHANNEL_GATEWAY_SOUND:
                 if (command instanceof DecimalType) {
-                    State state = getItemInChannel(CHANNEL_GATEWAY_VOLUME).getState();
-                    // get volume, default is 50%
-                    int volume = (state instanceof DecimalType && state != null) ? ((DecimalType) state).intValue()
-                            : 50;
+                    State state = null;
+                    int volume;
+                    try {
+                        state = getItemInChannel(CHANNEL_GATEWAY_VOLUME).getState();
+                    } catch (NullPointerException e) {
+                        logger.debug("There was no Item found for soundVolume, default 50% is used");
+                    }
+                    volume = (state instanceof DecimalType && state != null) ? ((DecimalType) state).intValue() : 50;
                     writeBridgeRingtone(((DecimalType) command).intValue(), volume);
                     updateState(CHANNEL_GATEWAY_SOUND_SWITCH, OnOffType.ON);
                 } else {
