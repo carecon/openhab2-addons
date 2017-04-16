@@ -40,15 +40,23 @@ public abstract class XiaomiSensorBaseHandler extends XiaomiDeviceBaseHandler {
         if (command.equals("report")) {
             parseReport(data);
         } else if (command.equals("heartbeat") || command.equals("read_ack")) {
-            if (data.get("voltage") != null) {
-                Integer voltage = data.get("voltage").getAsInt();
-                updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
-                if (voltage < 2800) {
-                    triggerChannel(CHANNEL_BATTERY_LOW, "LOW");
-                }
-            }
+            parseHeartbeat(data);
         } else {
             logger.debug("Device {} got unknown command {}", itemId, command);
+        }
+    }
+
+    /**
+     * @param data
+     */
+    @Override
+    void parseHeartbeat(JsonObject data) {
+        if (data.get("voltage") != null) {
+            Integer voltage = data.get("voltage").getAsInt();
+            updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
+            if (voltage < 2800) {
+                triggerChannel(CHANNEL_BATTERY_LOW, "LOW");
+            }
         }
     }
 

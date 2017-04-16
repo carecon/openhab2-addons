@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 /**
  * @author Dimalo
  */
-public class XiaomiAqaraActorSwitch2Handler extends XiaomiDeviceBaseHandler {
+public class XiaomiAqaraActorSwitch2Handler extends XiaomiActorBaseHandler {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 

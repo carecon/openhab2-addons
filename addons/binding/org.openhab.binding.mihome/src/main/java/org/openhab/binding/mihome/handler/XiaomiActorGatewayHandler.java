@@ -31,7 +31,7 @@ import com.google.gson.JsonObject;
  * @author Patrick Boos - Initial contribution
  * @author Dimalo
  */
-public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
+public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
 
     private float lastBrightness = -1;
 
@@ -130,10 +130,10 @@ public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
 
     @Override
     void parseCommand(String command, JsonObject data) {
-        if (command.equals("report") || command.equals("heartbeat") || command.equals("write_ack")) {
+        if (command.equals("report")) {
             parseReport(data);
-        } else if (command.equals("read_ack")) {
-            return;
+        } else if (command.equals("heartbeat") || command.equals("write_ack") || command.equals("read_ack")) {
+            parseHeartbeat(data);
         } else {
             logger.debug("Device {} got unknown command {}", itemId, command);
         }
@@ -141,6 +141,11 @@ public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
 
     @Override
     void parseReport(JsonObject data) {
+        parseHeartbeat(data);
+    }
+
+    @Override
+    void parseHeartbeat(JsonObject data) {
         if (data.has("rgb")) {
             long rgb = data.get("rgb").getAsLong();
             updateState(CHANNEL_BRIGHTNESS, new PercentType((int) (((rgb >> 24) & 0xff))));

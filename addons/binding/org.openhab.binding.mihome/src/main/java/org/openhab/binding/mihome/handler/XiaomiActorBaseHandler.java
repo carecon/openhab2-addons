@@ -8,9 +8,9 @@
  */
 package org.openhab.binding.mihome.handler;
 
-import static org.openhab.binding.mihome.XiaomiGatewayBindingConstants.CHANNEL_AQARA_CH0;
-
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,18 +19,26 @@ import com.google.gson.JsonObject;
 /**
  * @author Dimalo
  */
-public class XiaomiAqaraSensorSwitch1Handler extends XiaomiActorBaseHandler {
+public abstract class XiaomiActorBaseHandler extends XiaomiDeviceBaseHandler {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    public XiaomiAqaraSensorSwitch1Handler(Thing thing) {
+    public XiaomiActorBaseHandler(Thing thing) {
         super(thing);
     }
 
+    /**
+     * @param data
+     */
     @Override
-    protected void parseReport(JsonObject data) {
-        if (data.has("channel_0")) {
-            triggerChannel(CHANNEL_AQARA_CH0, data.get("channel_0").getAsString().toUpperCase());
-        }
+    void parseHeartbeat(JsonObject data) {
+        logger.debug("The binding does not parse this heartbeat message yet, contact authors if you want it to");
+        return;
+    }
+
+    @Override
+    void execute(ChannelUID channelUID, Command command) {
+        logger.debug("The binding does not parse this message yet, contact authors if you want it to");
+        return;
     }
 }
