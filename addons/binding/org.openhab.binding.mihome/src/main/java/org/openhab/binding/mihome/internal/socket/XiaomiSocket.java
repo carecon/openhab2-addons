@@ -74,9 +74,11 @@ public abstract class XiaomiSocket {
             if (socketReceiveThread != null) {
                 socketReceiveThread.interrupt();
             }
-            socket.close();
-            logger.debug("Socket closed");
-            socket = null;
+            if (socket != null) {
+                socket.close();
+                logger.debug("Socket closed");
+                socket = null;
+            }
         }
     }
 
