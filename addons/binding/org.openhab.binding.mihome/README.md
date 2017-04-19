@@ -265,6 +265,8 @@ end
 
 ```
 // Selection for Xiaomi Gateway Sounds
+// 10000 is STOP
+// >10001 are own sounds you uploaded to the gateway
 Selection item=Gateway_Sound mappings=[ 0="police car 1",
                                         1="police car 2",
                                         2="accident",
