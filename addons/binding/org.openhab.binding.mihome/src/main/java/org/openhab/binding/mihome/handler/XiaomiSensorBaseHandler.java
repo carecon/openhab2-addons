@@ -31,22 +31,6 @@ public abstract class XiaomiSensorBaseHandler extends XiaomiDeviceBaseHandler {
     }
 
     /**
-     * @param sid
-     * @param command
-     * @param data
-     */
-    @Override
-    void parseCommand(String command, JsonObject data) {
-        if (command.equals("report")) {
-            parseReport(data);
-        } else if (command.equals("heartbeat") || command.equals("read_ack")) {
-            parseHeartbeat(data);
-        } else {
-            logger.debug("Device {} got unknown command {}", itemId, command);
-        }
-    }
-
-    /**
      * @param data
      */
     @Override
@@ -58,6 +42,16 @@ public abstract class XiaomiSensorBaseHandler extends XiaomiDeviceBaseHandler {
                 triggerChannel(CHANNEL_BATTERY_LOW, "LOW");
             }
         }
+        if (data.get("status") != null) {
+            logger.debug(
+                    "Got status {} - Apart from \"report\" all other status updates for sensors seem not right (Firmware 1.4.1.145)",
+                    data.get("status").toString());
+        }
+    }
+
+    @Override
+    void parseReadAck(JsonObject data) {
+        parseHeartbeat(data);
     }
 
     @Override

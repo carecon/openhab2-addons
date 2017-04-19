@@ -116,34 +116,69 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
     }
 
     /**
-     * @param sid
      * @param command
      * @param data
      */
     void parseCommand(String command, JsonObject data) {
-        if (command.equals("report")) {
-            parseReport(data);
-        } else if (command.equals("heartbeat")) {
-            parseHeartbeat(data);
-        } else if (command.equals("read_ack") || command.equals("write_ack")) {
-            return;
-        } else {
-            logger.debug("Device {} got unknown command {}", itemId, command);
+        switch (command) {
+            case "report":
+                parseReport(data);
+                break;
+            case "heartbeat":
+                parseReport(data);
+                break;
+            case "read_ack":
+                parseReadAck(data);
+                break;
+            case "write_ack":
+                parseWriteAck(data);
+                break;
+            default:
+                logger.debug("Device {} got unknown command {}", itemId, command);
         }
     }
 
-    abstract void parseHeartbeat(JsonObject data);
+    /**
+     * @param data
+     */
+    void parseReport(JsonObject data) {
+        logger.debug("Got report with data: {}", data.toString());
+        logger.debug("The binding does not parse this message yet, contact authors if you want it to");
+        return;
+    }
+
+    /**
+     * @param data
+     */
+    void parseHeartbeat(JsonObject data) {
+        logger.debug("Got heartbeat with data: {}", data.toString());
+        logger.debug("The binding does not parse this message yet, contact authors if you want it to");
+        return;
+    }
+
+    /**
+     * @param data
+     */
+    void parseReadAck(JsonObject data) {
+        logger.debug("Got read_ack with data: {}", data.toString());
+        logger.debug("The binding does not parse this message yet, contact authors if you want it to");
+        return;
+    }
+
+    /**
+     * @param data
+     */
+    void parseWriteAck(JsonObject data) {
+        logger.debug("Got write_ack with data: {}", data.toString());
+        logger.debug("The binding does not parse this message yet, contact authors if you want it to");
+        return;
+    }
 
     /**
      * @param channelUID
      * @param command
      */
     abstract void execute(ChannelUID channelUID, Command command);
-
-    /**
-     * @param data
-     */
-    abstract void parseReport(JsonObject data);
 
     private void updateThingStatus() {
         if (itemId != null) {

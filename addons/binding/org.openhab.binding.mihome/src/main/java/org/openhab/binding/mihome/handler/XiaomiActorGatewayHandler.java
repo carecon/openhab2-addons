@@ -158,6 +158,16 @@ public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
         }
     }
 
+    @Override
+    void parseReadAck(JsonObject data) {
+        parseHeartbeat(data);
+    }
+
+    @Override
+    void parseWriteAck(JsonObject data) {
+        parseHeartbeat(data);
+    }
+
     private int getGatewayLightColor() {
         Item item = getItemInChannel(CHANNEL_COLOR);
         if (item == null) {

@@ -14,8 +14,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
-
 /**
  * @author Dimalo
  */
@@ -25,15 +23,6 @@ public abstract class XiaomiActorBaseHandler extends XiaomiDeviceBaseHandler {
 
     public XiaomiActorBaseHandler(Thing thing) {
         super(thing);
-    }
-
-    /**
-     * @param data
-     */
-    @Override
-    void parseHeartbeat(JsonObject data) {
-        logger.debug("The binding does not parse this heartbeat message yet, contact authors if you want it to");
-        return;
     }
 
     @Override

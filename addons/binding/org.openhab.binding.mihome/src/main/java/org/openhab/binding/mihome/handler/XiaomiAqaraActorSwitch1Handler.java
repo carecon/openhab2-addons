@@ -40,6 +40,8 @@ public class XiaomiAqaraActorSwitch1Handler extends XiaomiActorBaseHandler {
         }
     }
 
+    // TODO: wait for user feedbacks and logs to parse report, read_ack, write_ack correctly
+
     @Override
     void parseReport(JsonObject data) {
         if (data.has("channel_0")) {

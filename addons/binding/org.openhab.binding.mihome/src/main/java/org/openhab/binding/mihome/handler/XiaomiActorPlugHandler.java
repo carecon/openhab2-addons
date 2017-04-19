@@ -42,28 +42,16 @@ public class XiaomiActorPlugHandler extends XiaomiActorBaseHandler {
         }
     }
 
-    @Override
-    void parseReport(JsonObject data) {
-        if (data.has("status")) {
-            boolean isOn = data.get("status").getAsString().equals("on");
-            updateState(CHANNEL_POWER_ON, isOn ? OnOffType.ON : OnOffType.OFF);
-        }
-        if (data.has("load_voltage")) {
-            updateState(CHANNEL_LOAD_VOLTAGE, new DecimalType(data.get("load_voltage").getAsBigDecimal()));
-        }
-        if (data.has("load_power")) {
-            updateState(CHANNEL_LOAD_POWER, new DecimalType(data.get("load_power").getAsBigDecimal()));
-        }
-        if (data.has("power_consumed")) {
-            updateState(CHANNEL_POWER_CONSUMED, new DecimalType(data.get("power_consumed").getAsBigDecimal()));
-        }
-    }
+    // TODO: wait for user feedbacks and logs to parse report, read_ack, write_ack correctly
 
     @Override
     void parseHeartbeat(JsonObject data) {
         if (data.has("status")) {
             boolean isOn = data.get("status").getAsString().equals("on");
             updateState(CHANNEL_POWER_ON, isOn ? OnOffType.ON : OnOffType.OFF);
+        }
+        if (data.has("load_voltage")) {
+            updateState(CHANNEL_LOAD_VOLTAGE, new DecimalType(data.get("load_voltage").getAsBigDecimal()));
         }
         if (data.has("load_power")) {
             updateState(CHANNEL_LOAD_POWER, new DecimalType(data.get("load_power").getAsBigDecimal()));
