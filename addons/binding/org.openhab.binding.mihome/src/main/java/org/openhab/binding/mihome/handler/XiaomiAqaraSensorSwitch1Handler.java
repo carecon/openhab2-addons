@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
 /**
  * @author Dimalo
  */
-public class XiaomiAqaraSensorSwitch1Handler extends XiaomiActorBaseHandler {
+public class XiaomiAqaraSensorSwitch1Handler extends XiaomiSensorBaseHandler {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
