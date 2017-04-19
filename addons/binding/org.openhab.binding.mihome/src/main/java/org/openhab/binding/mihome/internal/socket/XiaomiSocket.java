@@ -93,7 +93,7 @@ public abstract class XiaomiSocket {
             setupSocket();
         }
         if (!listeners.contains(listener)) {
-            logger.debug("Adding socket listener {}", listener.toString());
+            logger.trace("Adding socket listener {}", listener.toString());
             listeners.add(listener);
         }
     }
@@ -123,7 +123,7 @@ public abstract class XiaomiSocket {
         try {
             byte[] sendData = message.getBytes("UTF-8");
             DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, address, port);
-            logger.debug("Sending message: {} to {}", message, address.toString());
+            logger.trace("Sending message: {} to {}", message, address.toString());
             socket.send(sendPacket);
         } catch (IOException e) {
             logger.error("Sending error", e);
@@ -155,7 +155,7 @@ public abstract class XiaomiSocket {
     class ReceiverThread extends Thread {
         @Override
         public void run() {
-            logger.debug("Staring reveicer thread for socket on port {}", socket.getLocalPort());
+            logger.trace("Staring reveicer thread for socket on port {}", socket.getLocalPort());
             receiveData(socket, datagramPacket);
         }
 
@@ -170,18 +170,18 @@ public abstract class XiaomiSocket {
         private void receiveData(DatagramSocket socket, DatagramPacket dgram) {
             try {
                 while (true) {
-                    logger.debug("Thread waiting for data on port {}", port);
+                    logger.trace("Thread waiting for data on port {}", port);
                     socket.receive(dgram);
                     String sentence = new String(dgram.getData(), 0, dgram.getLength());
                     JsonObject message = parser.parse(sentence).getAsJsonObject();
                     notifyAll(listeners, message);
-                    logger.debug("Data received and notified {} listeners", listeners.size());
+                    logger.trace("Data received and notified {} listeners", listeners.size());
                 }
             } catch (IOException e) {
                 if (!isInterrupted()) {
                     logger.error("Error while receiving", e);
                 } else {
-                    logger.debug("Receiver thread was interrupted");
+                    logger.trace("Receiver thread was interrupted");
                 }
             }
             logger.debug("Receiver thread ended");
