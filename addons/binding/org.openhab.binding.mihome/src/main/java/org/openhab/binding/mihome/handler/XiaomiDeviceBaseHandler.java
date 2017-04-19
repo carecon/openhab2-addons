@@ -125,7 +125,7 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
                 parseReport(data);
                 break;
             case "heartbeat":
-                parseReport(data);
+                parseHeartbeat(data);
                 break;
             case "read_ack":
                 parseReadAck(data);
