@@ -129,17 +129,6 @@ public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
     }
 
     @Override
-    void parseCommand(String command, JsonObject data) {
-        if (command.equals("report")) {
-            parseReport(data);
-        } else if (command.equals("heartbeat") || command.equals("write_ack") || command.equals("read_ack")) {
-            parseHeartbeat(data);
-        } else {
-            logger.debug("Device {} got unknown command {}", itemId, command);
-        }
-    }
-
-    @Override
     void parseReport(JsonObject data) {
         parseHeartbeat(data);
     }
