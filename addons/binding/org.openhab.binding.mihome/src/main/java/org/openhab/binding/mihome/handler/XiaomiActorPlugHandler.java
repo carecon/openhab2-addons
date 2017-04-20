@@ -42,16 +42,11 @@ public class XiaomiActorPlugHandler extends XiaomiActorBaseHandler {
         }
     }
 
-    // TODO: wait for user feedbacks and logs to parse report, read_ack, write_ack correctly
-
     @Override
     void parseHeartbeat(JsonObject data) {
-        if (data.has("status")) {
-            boolean isOn = data.get("status").getAsString().equals("on");
-            updateState(CHANNEL_POWER_ON, isOn ? OnOffType.ON : OnOffType.OFF);
-        }
-        if (data.has("load_voltage")) {
-            updateState(CHANNEL_LOAD_VOLTAGE, new DecimalType(data.get("load_voltage").getAsBigDecimal()));
+        getStatusFromData(data);
+        if (data.has("inuse")) {
+            updateState(CHANNEL_IN_USE, (data.get("inuse").toString().equals("1")) ? OnOffType.ON : OnOffType.OFF);
         }
         if (data.has("load_power")) {
             updateState(CHANNEL_LOAD_POWER, new DecimalType(data.get("load_power").getAsBigDecimal()));
@@ -59,5 +54,30 @@ public class XiaomiActorPlugHandler extends XiaomiActorBaseHandler {
         if (data.has("power_consumed")) {
             updateState(CHANNEL_POWER_CONSUMED, new DecimalType(data.get("power_consumed").getAsBigDecimal()));
         }
+    }
+
+    /**
+     * @param data
+     */
+    private void getStatusFromData(JsonObject data) {
+        if (data.has("status")) {
+            boolean isOn = data.get("status").getAsString().equals("on");
+            updateState(CHANNEL_POWER_ON, isOn ? OnOffType.ON : OnOffType.OFF);
+        }
+    }
+
+    @Override
+    void parseReadAck(JsonObject data) {
+        parseHeartbeat(data);
+    }
+
+    @Override
+    void parseReport(JsonObject data) {
+        getStatusFromData(data);
+    }
+
+    @Override
+    void parseWriteAck(JsonObject data) {
+        parseHeartbeat(data);
     }
 }

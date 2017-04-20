@@ -13,7 +13,7 @@
 
 		<channels>
 			<channel id="powerOn" typeId="powerOn" />
-			<channel id="loadVoltage" typeId="loadVoltage" />
+			<channel id="inUse" typeId="inUse" />
 			<channel id="loadPower" typeId="loadPower" />
 			<channel id="powerConsumed" typeId="powerConsumed" />
 		</channels>
@@ -33,10 +33,10 @@
 		<category>PowerOutlet</category>
 	</channel-type>
 	
-	<channel-type id="loadVoltage">
-		<item-type>Number</item-type>
-		<label>Load Voltage</label>
-		<state pattern="%d" readOnly="true"></state>
+	<channel-type id="inUse">
+		<item-type>Switch</item-type>
+		<label>In Use</label>
+		<state readOnly="true"></state>
 	</channel-type>
 	
 	<channel-type id="loadPower">
