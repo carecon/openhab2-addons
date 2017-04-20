@@ -46,7 +46,7 @@ public class XiaomiActorPlugHandler extends XiaomiActorBaseHandler {
     void parseHeartbeat(JsonObject data) {
         getStatusFromData(data);
         if (data.has("inuse")) {
-            updateState(CHANNEL_IN_USE, (data.get("inuse").toString().equals("1")) ? OnOffType.ON : OnOffType.OFF);
+            updateState(CHANNEL_IN_USE, (data.get("inuse").getAsInt() == 1) ? OnOffType.ON : OnOffType.OFF);
         }
         if (data.has("load_power")) {
             updateState(CHANNEL_LOAD_POWER, new DecimalType(data.get("load_power").getAsBigDecimal()));
