@@ -31,7 +31,7 @@ import com.google.gson.JsonObject;
  * @author Patrick Boos - Initial contribution
  * @author Dimalo
  */
-public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
+public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
 
     private float lastBrightness = -1;
 
@@ -96,10 +96,14 @@ public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
                 break;
             case CHANNEL_GATEWAY_SOUND:
                 if (command instanceof DecimalType) {
-                    State state = getItemInChannel(CHANNEL_GATEWAY_VOLUME).getState();
-                    // get volume, default is 50%
-                    int volume = (state instanceof DecimalType && state != null) ? ((DecimalType) state).intValue()
-                            : 50;
+                    State state = null;
+                    int volume;
+                    try {
+                        state = getItemInChannel(CHANNEL_GATEWAY_VOLUME).getState();
+                    } catch (NullPointerException e) {
+                        logger.debug("There was no Item found for soundVolume, default 50% is used");
+                    }
+                    volume = (state instanceof DecimalType && state != null) ? ((DecimalType) state).intValue() : 50;
                     writeBridgeRingtone(((DecimalType) command).intValue(), volume);
                     updateState(CHANNEL_GATEWAY_SOUND_SWITCH, OnOffType.ON);
                 } else {
@@ -125,18 +129,12 @@ public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
     }
 
     @Override
-    void parseCommand(String command, JsonObject data) {
-        if (command.equals("report") || command.equals("heartbeat") || command.equals("write_ack")) {
-            parseReport(data);
-        } else if (command.equals("read_ack")) {
-            return;
-        } else {
-            logger.debug("Device {} got unknown command {}", itemId, command);
-        }
+    void parseReport(JsonObject data) {
+        parseHeartbeat(data);
     }
 
     @Override
-    void parseReport(JsonObject data) {
+    void parseHeartbeat(JsonObject data) {
         if (data.has("rgb")) {
             long rgb = data.get("rgb").getAsLong();
             updateState(CHANNEL_BRIGHTNESS, new PercentType((int) (((rgb >> 24) & 0xff))));
@@ -147,6 +145,16 @@ public class XiaomiActorGatewayHandler extends XiaomiDeviceBaseHandler {
             int illu = data.get("illumination").getAsInt();
             updateState(CHANNEL_ILLUMINATION, new DecimalType(illu));
         }
+    }
+
+    @Override
+    void parseReadAck(JsonObject data) {
+        parseHeartbeat(data);
+    }
+
+    @Override
+    void parseWriteAck(JsonObject data) {
+        parseHeartbeat(data);
     }
 
     private int getGatewayLightColor() {

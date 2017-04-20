@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 /**
  * @author Dimalo
  */
-public class XiaomiAqaraActorSwitch2Handler extends XiaomiDeviceBaseHandler {
+public class XiaomiAqaraActorSwitch2Handler extends XiaomiActorBaseHandler {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -41,6 +41,8 @@ public class XiaomiAqaraActorSwitch2Handler extends XiaomiDeviceBaseHandler {
             logger.error("Can't handle command {} on channel {}", command, channelUID);
         }
     }
+
+    // TODO: wait for user feedbacks and logs to parse report, read_ack, write_ack correctly
 
     @Override
     void parseReport(JsonObject data) {
