@@ -64,8 +64,11 @@ public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
                                 if (I.getState() instanceof PercentType) {
                                     lastBrightness = Float.parseFloat(I.getState().toString());
                                     logger.debug("last brightness value found: {}", lastBrightness);
+                                    break;
                                 }
                             }
+                            lastBrightness = lastBrightness == -1 || lastBrightness == 0 ? 1 : lastBrightness;
+                            logger.debug("No dimmer value for brightness found, adjusted to {}", lastBrightness);
                         } catch (NumberFormatException e) {
                             lastBrightness = 1;
                             logger.debug("No last brightness value found - assuming 100");
