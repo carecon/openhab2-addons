@@ -10,17 +10,12 @@ package org.openhab.binding.mihome.handler;
 
 import static org.openhab.binding.mihome.XiaomiGatewayBindingConstants.*;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -28,27 +23,13 @@ import com.google.gson.JsonObject;
  * @author Patrick Boos - Initial contribution
  * @author Dimalo
  */
-public class XiaomiSensorMagnetHandler extends XiaomiSensorBaseHandler {
+public class XiaomiSensorMagnetHandler extends XiaomiSensorBaseHandlerWithTimer {
 
     private static final int DEFAULT_TIMER = 300;
-    private Integer triggerAfter = DEFAULT_TIMER;
-    private boolean taskIsActive;
-
-    private class TimerAction extends TimerTask {
-
-        @Override
-        public synchronized void run() {
-            triggerChannel(CHANNEL_OPEN_ALARM, "ALARM");
-            taskIsActive = false;
-        }
-    };
-
-    private Timer trigger = new Timer();
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private static final int MIN_TIMER = 30;
 
     public XiaomiSensorMagnetHandler(Thing thing) {
-        super(thing);
+        super(thing, DEFAULT_TIMER, MIN_TIMER, CHANNEL_OPEN_ALARM_TIMER);
     }
 
     @Override
@@ -58,11 +39,8 @@ public class XiaomiSensorMagnetHandler extends XiaomiSensorBaseHandler {
             updateState(CHANNEL_IS_OPEN, isOpen ? OpenClosedType.OPEN : OpenClosedType.CLOSED);
             synchronized (this) {
                 if (isOpen) {
-                    cancelRunningTimer();
                     updateState(CHANNEL_LAST_OPENED, new DateTimeType());
-                    logger.debug("Set alarm timer to {} sec", triggerAfter);
-                    trigger.schedule(new TimerAction(), triggerAfter * 1000);
-                    taskIsActive = true;
+                    startTimer();
                 } else {
                     cancelRunningTimer();
                 }
@@ -70,35 +48,22 @@ public class XiaomiSensorMagnetHandler extends XiaomiSensorBaseHandler {
         }
     }
 
-    /**
-     *
-     */
-    private void cancelRunningTimer() {
-        if (taskIsActive) {
-            logger.debug("Cancel running alarm timer");
-            trigger.cancel();
-            trigger = new Timer();
-            taskIsActive = false;
-        }
-    }
-
     @Override
     void execute(ChannelUID channelUID, Command command) {
         if (channelUID.getId().equals(CHANNEL_OPEN_ALARM_TIMER)) {
             if (command != null && command instanceof DecimalType) {
-                try {
-                    int cmd = DecimalType.valueOf(command.toString()).intValue();
-                    triggerAfter = cmd < 30 ? 30 : cmd;
-                    if (triggerAfter == 30) {
-                        updateState(CHANNEL_OPEN_ALARM_TIMER, new DecimalType(triggerAfter));
-                    }
-                } catch (NumberFormatException e) {
-                    logger.debug("Cannot parse the command {} to an Integer", command.toString());
-                    triggerAfter = DEFAULT_TIMER;
-                }
+                setTimerFromDecimalType((DecimalType) command);
+            } else {
+                logger.error("Cannot execute command {} on channel {}", channelUID, command);
             }
         } else {
-            return;
+            logger.error("Channel {} does not exist", channelUID);
         }
     }
+
+    @Override
+    void onTimer() {
+        triggerChannel(CHANNEL_OPEN_ALARM, "ALARM");
+    }
+
 }

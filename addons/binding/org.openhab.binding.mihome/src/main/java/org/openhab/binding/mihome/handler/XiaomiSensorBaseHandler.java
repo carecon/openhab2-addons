@@ -14,8 +14,6 @@ import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -23,8 +21,6 @@ import com.google.gson.JsonObject;
  * @author Dimalo
  */
 public abstract class XiaomiSensorBaseHandler extends XiaomiDeviceBaseHandler {
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public XiaomiSensorBaseHandler(Thing thing) {
         super(thing);
@@ -43,9 +39,9 @@ public abstract class XiaomiSensorBaseHandler extends XiaomiDeviceBaseHandler {
             }
         }
         if (data.get("status") != null) {
-            logger.debug(
+            logger.trace(
                     "Got status {} - Apart from \"report\" all other status updates for sensors seem not right (Firmware 1.4.1.145)",
-                    data.get("status").toString());
+                    data.get("status"));
         }
     }
 
@@ -56,6 +52,6 @@ public abstract class XiaomiSensorBaseHandler extends XiaomiDeviceBaseHandler {
 
     @Override
     void execute(ChannelUID channelUID, Command command) {
-        return;
+        logger.error("Channel {} does not exist", channelUID);
     }
 }

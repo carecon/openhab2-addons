@@ -15,8 +15,6 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -25,8 +23,6 @@ import com.google.gson.JsonObject;
  * @author Dimalo
  */
 public class XiaomiActorPlugHandler extends XiaomiActorBaseHandler {
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public XiaomiActorPlugHandler(Thing thing) {
         super(thing);
@@ -63,6 +59,10 @@ public class XiaomiActorPlugHandler extends XiaomiActorBaseHandler {
         if (data.has("status")) {
             boolean isOn = data.get("status").getAsString().equals("on");
             updateState(CHANNEL_POWER_ON, isOn ? OnOffType.ON : OnOffType.OFF);
+            if (!isOn) {
+                updateState(CHANNEL_IN_USE, OnOffType.OFF);
+                updateState(CHANNEL_LOAD_POWER, new DecimalType(0));
+            }
         }
     }
 

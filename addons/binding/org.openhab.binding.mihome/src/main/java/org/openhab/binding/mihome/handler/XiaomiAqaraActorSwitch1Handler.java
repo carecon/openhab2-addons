@@ -14,8 +14,6 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -23,8 +21,6 @@ import com.google.gson.JsonObject;
  * @author Dimalo
  */
 public class XiaomiAqaraActorSwitch1Handler extends XiaomiActorBaseHandler {
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public XiaomiAqaraActorSwitch1Handler(Thing thing) {
         super(thing);
