@@ -104,8 +104,12 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
     public void onItemUpdate(String sid, String command, JsonObject message) {
         if (itemId != null && itemId.equals(sid)) {
             logger.debug("Item got update: {}", message.toString());
-            JsonObject data = parser.parse(message.get("data").getAsString()).getAsJsonObject();
-            parseCommand(command, data);
+            try {
+                JsonObject data = parser.parse(message.get("data").getAsString()).getAsJsonObject();
+                parseCommand(command, data);
+            } catch (Exception e) {
+                logger.error("Unable to parse message {}", message);
+            }
             updateThingStatus();
         }
     }
