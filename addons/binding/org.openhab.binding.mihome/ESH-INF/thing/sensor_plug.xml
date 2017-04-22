@@ -42,13 +42,13 @@
 	<channel-type id="loadPower">
 		<item-type>Number</item-type>
 		<label>Load Power</label>
-		<state pattern="%.2f" readOnly="true"></state>
+		<state pattern="%d W" readOnly="true"></state>
 	</channel-type>
 
 	<channel-type id="powerConsumed">
 		<item-type>Number</item-type>
 		<label>Power Consumed</label>
-		<state pattern="%.2f" readOnly="true"></state>
+		<state pattern="%.3f kWh" readOnly="true"></state>
 	</channel-type>
 	
 </thing:thing-descriptions>

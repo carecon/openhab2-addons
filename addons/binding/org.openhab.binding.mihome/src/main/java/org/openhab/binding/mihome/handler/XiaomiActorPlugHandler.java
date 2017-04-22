@@ -48,7 +48,8 @@ public class XiaomiActorPlugHandler extends XiaomiActorBaseHandler {
             updateState(CHANNEL_LOAD_POWER, new DecimalType(data.get("load_power").getAsBigDecimal()));
         }
         if (data.has("power_consumed")) {
-            updateState(CHANNEL_POWER_CONSUMED, new DecimalType(data.get("power_consumed").getAsBigDecimal()));
+            updateState(CHANNEL_POWER_CONSUMED,
+                    new DecimalType(data.get("power_consumed").getAsBigDecimal().scaleByPowerOfTen(-3)));
         }
     }
 
