@@ -109,6 +109,7 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
                 parseCommand(command, data);
             } catch (Exception e) {
                 logger.error("Unable to parse message {}", message);
+                e.printStackTrace();
             }
             updateThingStatus();
         }

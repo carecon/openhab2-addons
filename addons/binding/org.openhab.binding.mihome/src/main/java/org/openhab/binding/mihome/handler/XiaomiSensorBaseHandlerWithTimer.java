@@ -94,7 +94,7 @@ public abstract class XiaomiSensorBaseHandlerWithTimer extends XiaomiSensorBaseH
                 setTimerFromDecimalType((DecimalType) state);
             }
         } else {
-            logger.error("Found more than one item for timer setpoint, only one is allowed.");
+            logger.error("Cannot find item for timer value, using already set value {}", timerSetpoint);
         }
     }
 
