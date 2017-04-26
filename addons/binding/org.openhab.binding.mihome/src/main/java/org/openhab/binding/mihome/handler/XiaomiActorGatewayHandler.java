@@ -22,8 +22,6 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.openhab.binding.mihome.internal.ColorUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -34,8 +32,6 @@ import com.google.gson.JsonObject;
 public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
 
     private float lastBrightness = -1;
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public XiaomiActorGatewayHandler(Thing thing) {
         super(thing);
@@ -64,8 +60,11 @@ public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
                                 if (I.getState() instanceof PercentType) {
                                     lastBrightness = Float.parseFloat(I.getState().toString());
                                     logger.debug("last brightness value found: {}", lastBrightness);
+                                    break;
                                 }
                             }
+                            lastBrightness = lastBrightness == -1 || lastBrightness == 0 ? 1 : lastBrightness;
+                            logger.debug("No dimmer value for brightness found, adjusted to {}", lastBrightness);
                         } catch (NumberFormatException e) {
                             lastBrightness = 1;
                             logger.debug("No last brightness value found - assuming 100");

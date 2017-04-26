@@ -14,8 +14,6 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -23,8 +21,6 @@ import com.google.gson.JsonObject;
  * @author Dimalo
  */
 public class XiaomiAqaraActorSwitch1Handler extends XiaomiActorBaseHandler {
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public XiaomiAqaraActorSwitch1Handler(Thing thing) {
         super(thing);
@@ -40,13 +36,34 @@ public class XiaomiAqaraActorSwitch1Handler extends XiaomiActorBaseHandler {
         }
     }
 
-    // TODO: wait for user feedbacks and logs to parse report, read_ack, write_ack correctly
-
     @Override
     void parseReport(JsonObject data) {
         if (data.has("channel_0")) {
             boolean isOn = data.get("channel_0").getAsString().toLowerCase().equals("on");
             updateState(CHANNEL_AQARA_CH0, isOn ? OnOffType.ON : OnOffType.OFF);
         }
+    }
+
+    @Override
+    void parseHeartbeat(JsonObject data) {
+        parseReport(data);
+    }
+
+    @Override
+    void parseReadAck(JsonObject data) {
+        parseReport(data);
+    }
+
+    @Override
+    void parseWriteAck(JsonObject data) {
+        /*
+         * As of 2017/04/22 and Firmware 1.4.1.145, write_ack does not get us any valuable informations.
+         * When writing a command to the switch, it reports the actual state in "write_ack" and then
+         * reports the changed value in "report" - as the state gets tracked by parsing reports and heartbeats,
+         * write_ack can be ignored
+         * otherwise put in:
+         * parseReport(data);
+         */
+        return;
     }
 }

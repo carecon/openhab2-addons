@@ -105,7 +105,7 @@ Number AqaraSwitch1_Battery <battery> { channel="mihome:86sw1:<ID>:voltage" }
 Number AqaraSwitch2_Battery <battery> { channel="mihome:86sw2:<ID>:voltage" }
 
 // Xiaomi Aqara Mains Powered Wall Switch 1
-Switch AqaraWallSwitch1 <switch> { channel="mihome:ctrl_neutral1:<ID>:sw1" }
+Switch AqaraWallSwitch <switch> { channel="mihome:ctrl_neutral1:<ID>:sw1" }
 
 // Xiaomi Aqara Mains Powered Wall Switch 2
 Switch AqaraWallSwitch1 <switch> { channel="mihome:ctrl_neutral2:<ID>:sw1" }
@@ -203,48 +203,25 @@ end
 
 rule "Xiaomi Aqara Battery Powered 1 Button Switch"
 when
-    Channel "mihome:86sw1:<ID>:sw1" triggered
+    Channel "mihome:86sw1:<ID>:sw1" triggered CLICK
 then
-    var actionName = receivedEvent.getEvent()
-    switch(actionName) {
-        case "CLICK": {
-            <ACTION>
-        }
-        case "DOUBLE_CLICK": {
-            <ACTION>
-        }
-    }
+    <ACTION>
 end
 
 rule "Xiaomi Aqara Battery Powered 2 Button Switch"
 when
-    Channel "mihome:86sw2:<ID>:sw1" triggered
+    Channel "mihome:86sw2:<ID>:sw1" triggered CLICK
 then
-    var actionName = receivedEvent.getEvent()
-    switch(actionName) {
-        case "CLICK": {
-            <ACTION>
-        }
-        case "DOUBLE_CLICK": {
-            <ACTION>
-        }
-    }
+    <ACTION>
 end
 
 rule "Xiaomi Aqara Battery Powered 2 Button Switch"
 when
-    Channel "mihome:86sw2:<ID>:sw2" triggered
+    Channel "mihome:86sw2:<ID>:sw2" triggered CLICK
 then
-    var actionName = receivedEvent.getEvent()
-    switch(actionName) {
-        case "CLICK": {
-            <ACTION>
-        }
-        case "DOUBLE_CLICK": {
-            <ACTION>
-        }
-    }
+    <ACTION>
 end
+
 rule "Xiaomi Aqara Battery Powered 2 Button Switch"
 when
     Channel "mihome:86sw2:<ID>:dual_sw" triggered BOTH_CLICK
