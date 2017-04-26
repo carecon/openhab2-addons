@@ -50,7 +50,7 @@ import com.google.common.collect.Sets;
  */
 public class XiaomiHandlerFactory extends BaseThingHandlerFactory {
 
-    private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets
             .union(XiaomiBridgeHandler.SUPPORTED_THING_TYPES, XiaomiDeviceBaseHandler.SUPPORTED_THING_TYPES);
 
     private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();

@@ -56,9 +56,9 @@ public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
                             Iterator<Item> iter = linkRegistry
                                     .getLinkedItems(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS)).iterator();
                             while (iter.hasNext()) {
-                                Item I = iter.next();
-                                if (I.getState() instanceof PercentType) {
-                                    lastBrightness = Float.parseFloat(I.getState().toString());
+                                Item item = iter.next();
+                                if (item.getState() instanceof PercentType) {
+                                    lastBrightness = Float.parseFloat(item.getState().toString());
                                     logger.debug("last brightness value found: {}", lastBrightness);
                                     break;
                                 }
@@ -95,14 +95,16 @@ public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
                 break;
             case CHANNEL_GATEWAY_SOUND:
                 if (command instanceof DecimalType) {
-                    State state = null;
-                    int volume;
-                    try {
-                        state = getItemInChannel(CHANNEL_GATEWAY_VOLUME).getState();
-                    } catch (NullPointerException e) {
+                    Item volumeItem = getItemInChannel(CHANNEL_GATEWAY_VOLUME);
+                    State state;
+                    if (volumeItem == null) {
+                        state = null;
                         logger.debug("There was no Item found for soundVolume, default 50% is used");
+                    } else {
+                        state = volumeItem.getState();
                     }
-                    volume = (state instanceof DecimalType && state != null) ? ((DecimalType) state).intValue() : 50;
+                    int volume = (state instanceof DecimalType && state != null) ? ((DecimalType) state).intValue()
+                            : 50;
                     writeBridgeRingtone(((DecimalType) command).intValue(), volume);
                     updateState(CHANNEL_GATEWAY_SOUND_SWITCH, OnOffType.ON);
                 } else {

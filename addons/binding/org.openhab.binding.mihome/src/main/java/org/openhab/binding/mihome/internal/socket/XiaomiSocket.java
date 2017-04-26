@@ -38,8 +38,10 @@ public abstract class XiaomiSocket {
 
     protected Thread socketReceiveThread;
     private static List<XiaomiSocketListener> listeners = new CopyOnWriteArrayList<>();
-    private static final JsonParser parser = new JsonParser();
-    protected static Logger logger = LoggerFactory.getLogger(XiaomiSocket.class);
+    private static final JsonParser PARSER = new JsonParser();
+
+    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+
     static ArrayList<XiaomiSocket> openSockets = new ArrayList<XiaomiSocket>();
 
     int port = 0;
@@ -141,7 +143,6 @@ public abstract class XiaomiSocket {
      * @return - a list of already open sockets
      */
     public static ArrayList<XiaomiSocket> getOpenSockets() {
-        logger.debug("Open Sockets are {}", openSockets.toString());
         return openSockets;
     }
 
@@ -173,7 +174,7 @@ public abstract class XiaomiSocket {
                     logger.trace("Thread waiting for data on port {}", port);
                     socket.receive(dgram);
                     String sentence = new String(dgram.getData(), 0, dgram.getLength());
-                    JsonObject message = parser.parse(sentence).getAsJsonObject();
+                    JsonObject message = PARSER.parse(sentence).getAsJsonObject();
                     notifyAll(listeners, message);
                     logger.trace("Data received and notified {} listeners", listeners.size());
                 }

@@ -44,7 +44,7 @@ import com.google.gson.JsonParser;
  */
 public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implements XiaomiItemUpdateListener {
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
             Arrays.asList(THING_TYPE_GATEWAY, THING_TYPE_SENSOR_HT, THING_TYPE_SENSOR_MOTION, THING_TYPE_SENSOR_SWITCH,
                     THING_TYPE_SENSOR_MAGNET, THING_TYPE_SENSOR_CUBE, THING_TYPE_SENSOR_AQARA1,
                     THING_TYPE_SENSOR_AQARA2, THING_TYPE_ACTOR_AQARA1, THING_TYPE_ACTOR_AQARA2, THING_TYPE_ACTOR_PLUG));
@@ -109,7 +109,7 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
                 parseCommand(command, data);
             } catch (Exception e) {
                 logger.error("Unable to parse message {}", message);
-                e.printStackTrace();
+                logger.error("Caught Exeption {}", e);
             }
             updateThingStatus();
         }
