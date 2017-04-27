@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) 2010-2017 by the respective copyright holders.
  *
@@ -53,8 +54,8 @@ import com.google.gson.JsonParser;
 public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements XiaomiSocketListener {
 
     private static final int DISCOVERY_LOCK_TIME = 10000;
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
-    private final static JsonParser parser = new JsonParser();
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
+    private static final JsonParser PARSER = new JsonParser();
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -95,6 +96,7 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
          *
          * // Use existing socket for this port (if one exists)
          * ArrayList<XiaomiSocket> sockets = XiaomiSocket.getOpenSockets();
+         * logger.debug("Open Sockets are {}", sockets.toString());
          * if (sockets != null && !(sockets.isEmpty())) {
          * for (XiaomiSocket s : sockets) {
          * logger.debug("Checking existing socket this BridgeHandler");
@@ -145,7 +147,7 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
         if (command.equals("heartbeat") && message.has("token")) {
             this.token = message.get("token").getAsString();
         } else if (command.equals("get_id_list_ack")) {
-            JsonArray devices = parser.parse(message.get("data").getAsString()).getAsJsonArray();
+            JsonArray devices = PARSER.parse(message.get("data").getAsString()).getAsJsonArray();
             for (JsonElement deviceId : devices) {
                 String device = deviceId.getAsString();
                 sendCommandToBridge("read", device);
@@ -161,7 +163,7 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
         notifyListeners(command, message);
     }
 
-    synchronized private void notifyListeners(String command, JsonObject message) {
+    private synchronized void notifyListeners(String command, JsonObject message) {
         boolean knownDevice = false;
         String sid = message.get("sid").getAsString();
 
@@ -189,9 +191,8 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
     public synchronized boolean registerItemListener(XiaomiItemUpdateListener listener) {
         boolean result = false;
         if (listener == null) {
-            throw new IllegalArgumentException("It's not allowed to pass a null XiaomiItemUpdateListener.");
-        }
-        if (listener instanceof XiaomiItemDiscoveryService) {
+            logger.error("It's not allowed to pass a null XiaomiItemUpdateListener");
+        } else if (listener instanceof XiaomiItemDiscoveryService) {
             result = !(itemDiscoveryListeners.contains(listener)) ? itemDiscoveryListeners.add(listener) : false;
             logger.debug("Having {} Discovery listeners", itemDiscoveryListeners.size());
         } else {
@@ -278,8 +279,13 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
             logger.error("No key set in the gateway settings. Edit it in the configuration.");
             return "";
         }
-
-        return EncryptionHelper.encrypt(token, key);
+        try {
+            key = EncryptionHelper.encrypt(token, key);
+        } catch (Exception e) {
+            logger.error("Caught Exeption {}", e);
+            key = "";
+        }
+        return key;
     }
 
     private String createDataString(String[] keys, Object[] values) {
