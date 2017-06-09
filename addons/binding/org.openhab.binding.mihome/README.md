@@ -62,7 +62,7 @@ There are two ways of connecting Xiaomi devices to the gateway:
     1. The device appears in openHAB thing Inbox
 
 * If you don't want to hear the Chinese voice every time, you can disable it by setting the volume to minimum in the MiHome App (same for the blinking light)
-* The devices don't need an Internet connection to be working after you have set up the developer mode BUT you won't be able to connect to them via App anymore - easiest way is to block their outgoing Internet connection in your router
+* The devices don't need an Internet connection to be working after you have set up the developer mode BUT you won't be able to connect to them via App anymore - easiest way is to block their outgoing Internet connection in your router and enable it later, when you want to check for updates etc.
 
 ## Important information
 
@@ -106,14 +106,16 @@ Dimmer Gateway_SoundVolume <soundvolume> { channel="mihome:gateway:<ID>:volume" 
 // Xiaomi Temperature and Humidity Sensor
 Number HT_Temperature <temperature> { channel="mihome:sensor_ht:<ID>:temperature" }
 Number HT_Humidity <humidity> { channel="mihome:sensor_ht:<ID>:humidity" }
-Number HT_Battery <battery> { channel="mihome:sensor_ht:<ID>:voltage" }
+Number HT_Battery <battery> { channel="mihome:sensor_ht:<ID>:batteryLevel" }
+Switch HT_BatteryLow <energy> { channel="mihome:sensor_ht:<ID>:lowBattery" }
 
 // Xiaomi Motion Sensor
 Switch MotionSensor_MotionStatus <motion>  { channel="mihome:sensor_motion:<ID>:motion" }
 // minimum 5 seconds - remember that the sensor only triggers every minute to save energy
 Number MotionSensor_MotionTimer <clock> { channel="mihome:sensor_motion:<ID>:motionOffTimer" }
 DateTime MotionSensor_LastMotion "[%1$tY-%1$tm-%1$td  %1$tH:%1$tM]" <clock-on> { channel="mihome:sensor_motion:<ID>:lastMotion" }
-Number MotionSensor_Battery <battery> { channel="mihome:sensor_motion:<ID>:voltage" }
+Number MotionSensor_Battery <battery> { channel="mihome:sensor_motion:<ID>:batteryLevel" }
+Switch MotionSensor_BatteryLow <energy> { channel="mihome:sensor_motion:<ID>:lowBattery" }
 
 // Xiaomi Plug
 Switch Plug_Switch <switch> { channel="mihome:sensor_plug:<ID>:powerOn" }
@@ -126,21 +128,26 @@ Contact WindowSwitch_Status <window>  { channel="mihome:sensor_magnet:<ID>:isOpe
 // minimum 30 seconds
 Number WindowSwitch_AlarmTimer <clock> { channel="mihome:sensor_magnet:<ID>:isOpenAlarmTimer" }
 DateTime WindowSwitch_LastOpened "[%1$tY-%1$tm-%1$td  %1$tH:%1$tM]" <clock-on> { channel="mihome:sensor_magnet:<ID>:lastOpened" }
-Number WindowSwitch_Battery <battery> { channel="mihome:sensor_magnet:<ID>:voltage" }
+Number WindowSwitch_Battery <battery> { channel="mihome:sensor_magnet:<ID>:batteryLevel" }
+Switch WindowSwitch_BatteryLow <energy> { channel="mihome:sensor_magnet:<ID>:lowBattery" }
 
 // Xiaomi Cube - see "xiaomi.rules" for action triggers
 Number Cube_RotationAngle { channel="mihome:sensor_cube:<ID>:rotationAngle" }
 Number Cube_RotationTime { channel="mihome:sensor_cube:<ID>:rotationTime" }
-Number Cube_Battery <battery> { channel="mihome:sensor_cube:<ID>:voltage" }
+Number Cube_Battery <battery> { channel="mihome:sensor_cube:<ID>:batteryLevel" }
+Switch Cube_BatteryLow <energy> { channel="mihome:sensor_cube:<ID>:lowBattery" }
 
 // Xiaomi Switch - see "xiaomi.rules" for action triggers
-Number Switch_Battery <battery> { channel="mihome:sensor_switch:<ID>:voltage" }
+Number Switch_Battery <battery> { channel="mihome:sensor_switch:<ID>:batteryLevel" }
+Switch Switch_BatteryLow <energy> { channel="mihome:sensor_switch:<ID>:lowBattery" }
 
 // Xiaomi Aqara Battery Powered Switch 1- see "xiaomi.rules" for action triggers
-Number AqaraSwitch1_Battery <battery> { channel="mihome:86sw1:<ID>:voltage" }
+Number AqaraSwitch1_Battery <battery> { channel="mihome:86sw1:<ID>:batteryLevel" }
+Switch AqaraSwitch1_BatteryLow <energy> { channel="mihome:86sw1:<ID>:lowBattery" }
 
 // Xiaomi Aqara Battery Powered Switch 2- see "xiaomi.rules" for action triggers
-Number AqaraSwitch2_Battery <battery> { channel="mihome:86sw2:<ID>:voltage" }
+Number AqaraSwitch2_Battery <battery> { channel="mihome:86sw2:<ID>:batteryLevel" }
+Switch AqaraSwitch2_BatteryLow <energy> { channel="mihome:86sw2:<ID>:lowBattery" }
 
 // Xiaomi Aqara Mains Powered Wall Switch 1
 Switch AqaraWallSwitch <switch> { channel="mihome:ctrl_neutral1:<ID>:ch1" }

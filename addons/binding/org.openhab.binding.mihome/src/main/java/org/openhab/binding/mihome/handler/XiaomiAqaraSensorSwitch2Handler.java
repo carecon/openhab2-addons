@@ -25,16 +25,6 @@ public class XiaomiAqaraSensorSwitch2Handler extends XiaomiSensorBaseHandler {
 
     @Override
     protected void parseReport(JsonObject data) {
-        parseDefault(data);
-    }
-
-    @Override
-    void parseReadAck(JsonObject data) {
-        parseDefault(data);
-    }
-
-    @Override
-    void parseDefault(JsonObject data) {
         if (data.has("channel_0")) {
             triggerChannel(CHANNEL_SWITCH_CH0, data.get("channel_0").getAsString().toUpperCase());
         }
