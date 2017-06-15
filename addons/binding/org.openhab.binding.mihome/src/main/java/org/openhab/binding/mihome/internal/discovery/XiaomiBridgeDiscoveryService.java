@@ -37,13 +37,13 @@ import com.google.gson.JsonObject;
 public class XiaomiBridgeDiscoveryService extends AbstractDiscoveryService implements XiaomiSocketListener {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
-    private static final int DISCOVERY_TIMEOUT = 10;
+    private static final int DISCOVERY_TIMEOUT_SEC = 10;
 
-    private Logger logger = LoggerFactory.getLogger(XiaomiBridgeDiscoveryService.class);
+    private final Logger logger = LoggerFactory.getLogger(XiaomiBridgeDiscoveryService.class);
     private XiaomiDiscoverySocket socket;
 
     public XiaomiBridgeDiscoveryService() {
-        super(SUPPORTED_THING_TYPES, DISCOVERY_TIMEOUT, false);
+        super(SUPPORTED_THING_TYPES, DISCOVERY_TIMEOUT_SEC, false);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class XiaomiBridgeDiscoveryService extends AbstractDiscoveryService imple
             public void run() {
                 discoveryEndedLock.release();
             }
-        }, DISCOVERY_TIMEOUT, TimeUnit.SECONDS);
+        }, DISCOVERY_TIMEOUT_SEC, TimeUnit.SECONDS);
         try {
             discoveryEndedLock.acquire();
         } catch (InterruptedException e) {
@@ -82,7 +82,7 @@ public class XiaomiBridgeDiscoveryService extends AbstractDiscoveryService imple
 
     @Override
     public void onDataReceived(JsonObject data) {
-        logger.debug("Received message {}", data.toString());
+        logger.debug("Received message {}", data);
         if (data.get("cmd").getAsString().equals("iam")) {
             getGatewayInfo(data);
         }
@@ -109,10 +109,5 @@ public class XiaomiBridgeDiscoveryService extends AbstractDiscoveryService imple
         thingDiscovered(
                 DiscoveryResultBuilder.create(thingUID).withThingType(THING_TYPE_BRIDGE).withProperties(properties)
                         .withLabel("Xiaomi Gateway").withRepresentationProperty(SERIAL_NUMBER).build());
-
-        // DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
-        // .withProperties(properties).withBridge(bridgeUID).withLabel(light.getName()).build();
-        // thingDiscovered(discoveryResult);
-        // return new ThingUID(thingTypeUID, bridgeUID, light.getId());
     }
 }

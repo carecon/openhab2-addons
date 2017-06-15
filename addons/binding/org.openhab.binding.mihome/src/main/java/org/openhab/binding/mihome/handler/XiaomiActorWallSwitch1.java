@@ -22,11 +22,11 @@ import com.google.gson.JsonObject;
 /**
  * @author Dieter Schmidt
  */
-public class XiaomiAqaraActorSwitch1Handler extends XiaomiActorBaseHandler {
+public class XiaomiActorWallSwitch1 extends XiaomiActorBaseHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(XiaomiAqaraActorSwitch1Handler.class);
+    private final Logger logger = LoggerFactory.getLogger(XiaomiActorWallSwitch1.class);
 
-    public XiaomiAqaraActorSwitch1Handler(Thing thing) {
+    public XiaomiActorWallSwitch1(Thing thing) {
         super(thing);
     }
 

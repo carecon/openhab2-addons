@@ -10,6 +10,9 @@ package org.openhab.binding.mihome.internal;
 
 import static org.openhab.binding.mihome.XiaomiGatewayBindingConstants.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
@@ -17,63 +20,54 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  *
  * @author Patrick Boos - Initial contribution
  * @author Kuba Wolanin - Renamed labels
- * @author Dimalo
+ * @author Dieter Schmidt
  */
 public class ModelMapper {
 
+    private static final Map<String, ThingTypeUID> thingMapper = new HashMap<String, ThingTypeUID>();
+    private static final Map<String, String> labelMapper = new HashMap<String, String>();
+    static {
+        // Alphabetical order
+        thingMapper.put("curtain", THING_TYPE_ACTOR_CURTAIN);
+        thingMapper.put("gateway", THING_TYPE_GATEWAY);
+        thingMapper.put("plug", THING_TYPE_ACTOR_PLUG);
+        thingMapper.put("ctrl_neutral1", THING_TYPE_ACTOR_AQARA1);
+        thingMapper.put("ctrl_neutral2", THING_TYPE_ACTOR_AQARA2);
+        thingMapper.put("ctrl_ln1", THING_TYPE_ACTOR_WALL1);
+        thingMapper.put("ctrl_ln2", THING_TYPE_ACTOR_WALL2);
+        thingMapper.put("86sw1", THING_TYPE_SENSOR_AQARA1);
+        thingMapper.put("86sw2", THING_TYPE_SENSOR_AQARA2);
+        thingMapper.put("cube", THING_TYPE_SENSOR_CUBE);
+        thingMapper.put("sensor_ht", THING_TYPE_SENSOR_HT);
+        thingMapper.put("magnet", THING_TYPE_SENSOR_MAGNET);
+        thingMapper.put("motion", THING_TYPE_SENSOR_MOTION);
+        thingMapper.put("natgas", THING_TYPE_SENSOR_GAS);
+        thingMapper.put("smoke", THING_TYPE_SENSOR_SMOKE);
+        thingMapper.put("switch", THING_TYPE_SENSOR_SWITCH);
+
+        labelMapper.put("curtain", "Xiaomi Aqara Intelligent Curtain Motor");
+        labelMapper.put("gateway", "Xiaomi Mi Smart Home Gateway");
+        labelMapper.put("plug", "Xiaomi Mi Smart Socket Plug");
+        labelMapper.put("ctrl_neutral1", "Xiaomi Aqara Wall Switch 1 Button");
+        labelMapper.put("ctrl_neutral2", "Xiaomi Aqara Wall Switch 2 Button");
+        labelMapper.put("ctrl_ln1", "Xiaomi \"zero-fire\" 1 Channel Wall Switch");
+        labelMapper.put("ctrl_ln2", "Xiaomi \"zero-fire\" 2 Channel Wall Switch");
+        labelMapper.put("86sw1", "Xiaomi Aqara Smart Switch 1 Button");
+        labelMapper.put("86sw2", "Xiaomi Aqara Smart Switch 2 Button");
+        labelMapper.put("cube", "Xiaomi Mi Smart Cube");
+        labelMapper.put("sensor_ht", "Xiaomi Mi Temperature & Humidity Sensor");
+        labelMapper.put("magnet", "Xiaomi Door/Window Sensor");
+        labelMapper.put("motion", "Xiaomi Mi Motion Sensor");
+        labelMapper.put("natgas", "New, yet unconfirmed device");
+        labelMapper.put("smoke", "New, yet unconfirmed device");
+        labelMapper.put("switch", "Xiaomi Mi Wireless Switch");
+    }
+
     public static ThingTypeUID getThingTypeForModel(String model) {
-        switch (model) {
-            case "gateway":
-                return THING_TYPE_GATEWAY;
-            case "sensor_ht":
-                return THING_TYPE_SENSOR_HT;
-            case "motion":
-                return THING_TYPE_SENSOR_MOTION;
-            case "switch":
-                return THING_TYPE_SENSOR_SWITCH;
-            case "magnet":
-                return THING_TYPE_SENSOR_MAGNET;
-            case "cube":
-                return THING_TYPE_SENSOR_CUBE;
-            case "86sw1":
-                return THING_TYPE_SENSOR_AQARA1;
-            case "86sw2":
-                return THING_TYPE_SENSOR_AQARA2;
-            case "ctrl_neutral1":
-                return THING_TYPE_ACTOR_AQARA1;
-            case "ctrl_neutral2":
-                return THING_TYPE_ACTOR_AQARA2;
-            case "plug":
-                return THING_TYPE_ACTOR_PLUG;
-        }
-        return null;
+        return thingMapper.get(model);
     }
 
     public static String getLabelForModel(String model) {
-        switch (model) {
-            case "gateway":
-                return "Xiaomi Mi Smart Home Gateway";
-            case "sensor_ht":
-                return "Xiaomi Mi Temperature & Humidity Sensor";
-            case "motion":
-                return "Xiaomi Mi Motion Sensor";
-            case "magnet":
-                return "Xiaomi Door/Window Sensor";
-            case "switch":
-                return "Xiaomi Mi Wireless Switch";
-            case "plug":
-                return "Xiaomi Mi Smart Socket Plug";
-            case "cube":
-                return "Xiaomi Mi Smart Cube";
-            case "86sw1":
-                return "Xiaomi Aqara Smart Switch 1 Button";
-            case "86sw2":
-                return "Xiaomi Aqara Smart Switch 2 Button";
-            case "ctrl_neutral1":
-                return "Xiaomi Aqara Wall Switch 1 Button";
-            case "ctrl_neutral2":
-                return "Xiaomi Aqara Wall Switch 2 Button";
-        }
-        return null;
+        return labelMapper.get(model);
     }
 }

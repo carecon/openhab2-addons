@@ -15,14 +15,18 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
 /**
  * @author Patrick Boos - Initial contribution
- * @author Dimalo
+ * @author Dieter Schmidt
  */
 public class XiaomiActorPlugHandler extends XiaomiActorBaseHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(XiaomiActorPlugHandler.class);
 
     public XiaomiActorPlugHandler(Thing thing) {
         super(thing);
@@ -30,16 +34,37 @@ public class XiaomiActorPlugHandler extends XiaomiActorBaseHandler {
 
     @Override
     void execute(ChannelUID channelUID, Command command) {
-        if (channelUID.getId().equals(CHANNEL_POWER_ON)) {
+        if (CHANNEL_POWER_ON.equals(channelUID.getId())) {
             String status = command.toString().toLowerCase();
             getXiaomiBridgeHandler().writeToDevice(itemId, new String[] { "status" }, new Object[] { status });
-        } else {
-            logger.error("Can't handle command {} on channel {}", command, channelUID);
+            return;
         }
+        // Only gets here, if no condition was met
+        logger.warn("Can't handle command {} on channel {}", command, channelUID);
     }
 
     @Override
     void parseHeartbeat(JsonObject data) {
+        parseDefault(data);
+    }
+
+    @Override
+    void parseReadAck(JsonObject data) {
+        parseDefault(data);
+    }
+
+    @Override
+    void parseReport(JsonObject data) {
+        getStatusFromData(data);
+    }
+
+    @Override
+    void parseWriteAck(JsonObject data) {
+        parseDefault(data);
+    }
+
+    @Override
+    void parseDefault(JsonObject data) {
         getStatusFromData(data);
         if (data.has("inuse")) {
             updateState(CHANNEL_IN_USE, (data.get("inuse").getAsInt() == 1) ? OnOffType.ON : OnOffType.OFF);
@@ -58,7 +83,7 @@ public class XiaomiActorPlugHandler extends XiaomiActorBaseHandler {
      */
     private void getStatusFromData(JsonObject data) {
         if (data.has("status")) {
-            boolean isOn = data.get("status").getAsString().equals("on");
+            boolean isOn = "on".equals(data.get("status").getAsString());
             updateState(CHANNEL_POWER_ON, isOn ? OnOffType.ON : OnOffType.OFF);
             if (!isOn) {
                 updateState(CHANNEL_IN_USE, OnOffType.OFF);
@@ -67,18 +92,4 @@ public class XiaomiActorPlugHandler extends XiaomiActorBaseHandler {
         }
     }
 
-    @Override
-    void parseReadAck(JsonObject data) {
-        parseHeartbeat(data);
-    }
-
-    @Override
-    void parseReport(JsonObject data) {
-        getStatusFromData(data);
-    }
-
-    @Override
-    void parseWriteAck(JsonObject data) {
-        parseHeartbeat(data);
-    }
 }

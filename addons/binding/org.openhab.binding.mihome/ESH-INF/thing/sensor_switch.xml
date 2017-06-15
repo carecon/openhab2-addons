@@ -9,12 +9,12 @@
 		</supported-bridge-type-refs>
 
 		<label>Xiaomi Mi Wireless Switch</label>
-		<description>Round-shaped mini wireless switch that allows to trigger three types of event: single click, double click and long click.</description>
+		<description>Round-shaped mini wireless switch that allows to trigger four types of event: single click, double click, long click press, long click release.</description>
 
 		<channels>
 			<channel id="button" typeId="button" />
-			<channel id="voltage" typeId="voltage" />
-			<channel id="batteryLevel" typeId="batteryLevel" />
+			<channel id="batteryLevel" typeId="system.battery-level" />
+			<channel id="lowBattery" typeId="system.low-battery" />
 		</channels>
 
 		<config-description>
@@ -35,24 +35,6 @@
 				<option value="DOUBLE_CLICK">double click</option>
 				<option value="LONG_CLICK_PRESS">long click press</option>
 				<option value="LONG_CLICK_RELEASE">long click release</option>
-			</options>
-		</event>
-	</channel-type>
-
-	<channel-type id="voltage" advanced="true">
-		<item-type>Number</item-type>
-		<label>Battery Voltage</label>
-		<category>Battery Voltage</category>
-		<state pattern="%d mV" readOnly="true"></state>
-	</channel-type>
-
-	<channel-type id="batteryLevel" advanced="true">
-		<kind>trigger</kind>
-		<label>Low Battery Level</label>
-		<description>Triggers LOW event when voltage is below 2800 mV</description>
-		<event>
-			<options>
-				<option value="LOW">low</option>
 			</options>
 		</event>
 	</channel-type>

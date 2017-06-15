@@ -14,13 +14,17 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
 /**
- * @author Dimalo
+ * @author Dieter Schmidt
  */
 public class XiaomiAqaraActorSwitch2Handler extends XiaomiActorBaseHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(XiaomiAqaraActorSwitch2Handler.class);
 
     public XiaomiAqaraActorSwitch2Handler(Thing thing) {
         super(thing);
@@ -29,46 +33,47 @@ public class XiaomiAqaraActorSwitch2Handler extends XiaomiActorBaseHandler {
     @Override
     void execute(ChannelUID channelUID, Command command) {
         String status = command.toString().toLowerCase();
-        if (channelUID.getId().equals(CHANNEL_AQARA_CH0)) {
-            getXiaomiBridgeHandler().writeToDevice(itemId, new String[] { "channel_0" }, new Object[] { status });
-        } else if (channelUID.getId().equals(CHANNEL_AQARA_CH1)) {
-            getXiaomiBridgeHandler().writeToDevice(itemId, new String[] { "channel_1" }, new Object[] { status });
-        } else {
-            logger.error("Can't handle command {} on channel {}", command, channelUID);
+        switch (channelUID.getId()) {
+            case CHANNEL_SWITCH_CH0:
+                getXiaomiBridgeHandler().writeToDevice(itemId, new String[] { "channel_0" }, new Object[] { status });
+                return;
+            case CHANNEL_SWITCH_CH1:
+                getXiaomiBridgeHandler().writeToDevice(itemId, new String[] { "channel_1" }, new Object[] { status });
+                return;
         }
+        // Only gets here, if no condition was met
+        logger.error("Can't handle command {} on channel {}", command, channelUID);
     }
 
     @Override
     void parseReport(JsonObject data) {
-        if (data.has("channel_0")) {
-            boolean isOn = data.get("channel_0").getAsString().toLowerCase().equals("on");
-            updateState(CHANNEL_AQARA_CH0, isOn ? OnOffType.ON : OnOffType.OFF);
-        } else if (data.has("channel_1")) {
-            boolean isOn = data.get("channel_1").getAsString().toLowerCase().equals("on");
-            updateState(CHANNEL_AQARA_CH1, isOn ? OnOffType.ON : OnOffType.OFF);
-        }
+        parseDefault(data);
     }
 
     @Override
     void parseHeartbeat(JsonObject data) {
-        parseReport(data);
+        parseDefault(data);
     }
 
     @Override
     void parseReadAck(JsonObject data) {
-        parseReport(data);
+        parseDefault(data);
     }
 
     @Override
     void parseWriteAck(JsonObject data) {
-        /*
-         * As of 2017/04/22 and Firmware 1.4.1.145, write_ack does not get us any valuable informations.
-         * When writing a command to the switch, it reports the actual state in "write_ack" and then
-         * reports the changed value in "report" - as the state gets tracked by parsing reports and heartbeats,
-         * write_ack can be ignored
-         * otherwise put in:
-         * parseReport(data);
-         */
-        return;
+        parseDefault(data);
     }
+
+    @Override
+    void parseDefault(JsonObject data) {
+        if (data.has("channel_0")) {
+            boolean isOn = "on".equals(data.get("channel_0").getAsString().toLowerCase());
+            updateState(CHANNEL_SWITCH_CH0, isOn ? OnOffType.ON : OnOffType.OFF);
+        } else if (data.has("channel_1")) {
+            boolean isOn = "on".equals(data.get("channel_1").getAsString().toLowerCase());
+            updateState(CHANNEL_SWITCH_CH1, isOn ? OnOffType.ON : OnOffType.OFF);
+        }
+    }
+
 }

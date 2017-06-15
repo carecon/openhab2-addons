@@ -3,13 +3,13 @@
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-	<thing-type id="ctrl_neutral1">
+	<thing-type id="ctrl_ln1">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="bridge" />
 		</supported-bridge-type-refs>
 
-		<label>Xiaomi Aqara 1 Channel Wall Switch</label>
-		<description>Mains powered Aqara Switch with 1 controllable Channel</description>
+		<label>Xiaomi "zero-fire" 1 Channel Wall Switch</label>
+		<description>New, yet unconfirmed device</description>
 
 		<channels>
 			<channel id="ch1" typeId="sw1-btn" />

@@ -16,17 +16,21 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
 /**
  * @author Patrick Boos - Initial contribution
- * @author Dimalo
+ * @author Dieter Schmidt
  */
 public class XiaomiSensorMotionHandler extends XiaomiSensorBaseHandlerWithTimer {
 
     private static final int DEFAULT_TIMER = 120;
     private static final int MIN_TIMER = 5;
+
+    private final Logger logger = LoggerFactory.getLogger(XiaomiSensorMotionHandler.class);
 
     public XiaomiSensorMotionHandler(Thing thing) {
         super(thing, DEFAULT_TIMER, MIN_TIMER, CHANNEL_MOTION_OFF_TIMER);
@@ -34,7 +38,7 @@ public class XiaomiSensorMotionHandler extends XiaomiSensorBaseHandlerWithTimer 
 
     @Override
     void parseReport(JsonObject data) {
-        boolean hasMotion = data.has("status") && data.get("status").getAsString().equals("motion");
+        boolean hasMotion = data.has("status") && "motion".equals(data.get("status").getAsString());
         synchronized (this) {
             if (hasMotion) {
                 updateState(CHANNEL_MOTION, OnOffType.ON);
@@ -46,12 +50,13 @@ public class XiaomiSensorMotionHandler extends XiaomiSensorBaseHandlerWithTimer 
 
     @Override
     void execute(ChannelUID channelUID, Command command) {
-        if (channelUID.getId().equals(CHANNEL_MOTION_OFF_TIMER)) {
+        if (CHANNEL_MOTION_OFF_TIMER.equals(channelUID.getId())) {
             if (command != null && command instanceof DecimalType) {
                 setTimerFromDecimalType((DecimalType) command);
-            } else {
-                logger.error("Cannot execute command {} on channel {}", channelUID, command);
+                return;
             }
+            // Only gets here, if no condition was met
+            logger.error("Can't handle command {} on channel {}", command, channelUID);
         } else {
             logger.error("Channel {} does not exist", channelUID);
         }

@@ -23,8 +23,11 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.openhab.binding.mihome.handler.XiaomiActorCurtainHandler;
 import org.openhab.binding.mihome.handler.XiaomiActorGatewayHandler;
 import org.openhab.binding.mihome.handler.XiaomiActorPlugHandler;
+import org.openhab.binding.mihome.handler.XiaomiActorWallSwitch1;
+import org.openhab.binding.mihome.handler.XiaomiActorWallSwitch2;
 import org.openhab.binding.mihome.handler.XiaomiAqaraActorSwitch1Handler;
 import org.openhab.binding.mihome.handler.XiaomiAqaraActorSwitch2Handler;
 import org.openhab.binding.mihome.handler.XiaomiAqaraSensorSwitch1Handler;
@@ -46,7 +49,7 @@ import com.google.common.collect.Sets;
  * handlers.
  *
  * @author Patrick Boos - Initial contribution
- * @author Dimalo
+ * @author Dieter Schmidt
  */
 public class XiaomiHandlerFactory extends BaseThingHandlerFactory {
 
@@ -121,6 +124,12 @@ public class XiaomiHandlerFactory extends BaseThingHandlerFactory {
             return new XiaomiAqaraActorSwitch2Handler(thing);
         } else if (thingTypeUID.equals(THING_TYPE_ACTOR_PLUG)) {
             return new XiaomiActorPlugHandler(thing);
+        } else if (thingTypeUID.equals(THING_TYPE_ACTOR_WALL1)) {
+            return new XiaomiActorWallSwitch1(thing);
+        } else if (thingTypeUID.equals(THING_TYPE_ACTOR_WALL2)) {
+            return new XiaomiActorWallSwitch2(thing);
+        } else if (thingTypeUID.equals(THING_TYPE_ACTOR_CURTAIN)) {
+            return new XiaomiActorCurtainHandler(thing);
         } else {
             return null;
         }

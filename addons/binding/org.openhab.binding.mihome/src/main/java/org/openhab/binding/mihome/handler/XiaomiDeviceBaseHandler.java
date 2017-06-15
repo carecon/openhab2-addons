@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -26,12 +25,14 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.mihome.internal.XiaomiItemUpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * The {@link XiaomiDeviceBaseHandler} is responsible for handling commands, which are
@@ -39,17 +40,19 @@ import com.google.gson.JsonParser;
  *
  * @author Patrick Boos - Initial contribution
  * @author Kuba Wolanin - Added voltage and low battery report
- * @author Dimalo - Added cube rotation, heartbeat and voltage handling, configurable window and motion delay, Aqara
+ * @author Dieter Schmidt - Added cube rotation, heartbeat and voltage handling, configurable window and motion delay,
+ *         Aqara
  *         switches
  */
 public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implements XiaomiItemUpdateListener {
 
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
-            Arrays.asList(THING_TYPE_GATEWAY, THING_TYPE_SENSOR_HT, THING_TYPE_SENSOR_MOTION, THING_TYPE_SENSOR_SWITCH,
-                    THING_TYPE_SENSOR_MAGNET, THING_TYPE_SENSOR_CUBE, THING_TYPE_SENSOR_AQARA1,
-                    THING_TYPE_SENSOR_AQARA2, THING_TYPE_ACTOR_AQARA1, THING_TYPE_ACTOR_AQARA2, THING_TYPE_ACTOR_PLUG));
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(Arrays.asList(THING_TYPE_GATEWAY,
+            THING_TYPE_SENSOR_HT, THING_TYPE_SENSOR_MOTION, THING_TYPE_SENSOR_SWITCH, THING_TYPE_SENSOR_MAGNET,
+            THING_TYPE_SENSOR_CUBE, THING_TYPE_SENSOR_AQARA1, THING_TYPE_SENSOR_AQARA2, THING_TYPE_SENSOR_GAS,
+            THING_TYPE_SENSOR_SMOKE, THING_TYPE_ACTOR_AQARA1, THING_TYPE_ACTOR_AQARA2, THING_TYPE_ACTOR_PLUG,
+            THING_TYPE_ACTOR_WALL1, THING_TYPE_ACTOR_WALL2, THING_TYPE_ACTOR_CURTAIN));
 
-    private static final long ONLINE_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours
+    private static final long ONLINE_TIMEOUT_MILLIS = 2 * 60 * 60 * 1000; // 2 hours
 
     private JsonParser parser = new JsonParser();
 
@@ -57,7 +60,7 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
 
     String itemId;
 
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(XiaomiDeviceBaseHandler.class);
 
     public XiaomiDeviceBaseHandler(Thing thing) {
         super(thing);
@@ -65,27 +68,17 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
 
     @Override
     public void initialize() {
-        final String configItemId = (String) getConfig().get(ITEM_ID);
-        if (configItemId != null) {
-            itemId = configItemId;
-        }
-        // schedule init with random delay between 200ms and 1sec
-        scheduler.schedule(new Runnable() {
-            @Override
-            public void run() {
-                updateThingStatus();
-            }
-        }, (int) Math.max((Math.random() * 1000), 200), TimeUnit.MILLISECONDS);
+        itemId = (String) getConfig().get(ITEM_ID);
+        updateThingStatus();
     }
 
     @Override
     public void dispose() {
-        logger.debug("Handler disposes. Unregistering listener.");
+        logger.debug("Handler disposes. Unregistering listener");
         if (itemId != null) {
-            XiaomiBridgeHandler bridgeHandler = getXiaomiBridgeHandler();
             if (bridgeHandler != null) {
                 bridgeHandler.unregisterItemListener(this);
-                this.bridgeHandler = null;
+                bridgeHandler = null;
             }
             itemId = null;
         }
@@ -94,7 +87,13 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         logger.debug("Device {} on channel {} received command {}", itemId, channelUID, command);
-        if (command.toString().toLowerCase().equals("refresh")) {
+        if (command instanceof RefreshType) {
+            JsonObject message = getXiaomiBridgeHandler().getRetentedMessage(itemId);
+            if (message != null) {
+                String cmd = message.get("cmd").getAsString();
+                logger.debug("Update Item {} with retented message", itemId);
+                onItemUpdate(itemId, cmd, message);
+            }
             return;
         }
         execute(channelUID, command);
@@ -103,13 +102,12 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
     @Override
     public void onItemUpdate(String sid, String command, JsonObject message) {
         if (itemId != null && itemId.equals(sid)) {
-            logger.debug("Item got update: {}", message.toString());
+            logger.debug("Item got update: {}", message);
             try {
                 JsonObject data = parser.parse(message.get("data").getAsString()).getAsJsonObject();
                 parseCommand(command, data);
-            } catch (Exception e) {
-                logger.error("Unable to parse message {}", message);
-                logger.error("Caught Exeption {}", e);
+            } catch (JsonSyntaxException e) {
+                logger.warn("Unable to parse message as valid JSON: {}", message);
             }
             updateThingStatus();
         }
@@ -147,37 +145,31 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
      * @param data
      */
     void parseReport(JsonObject data) {
-        logger.debug("Got report with data: {}", data.toString());
         logger.debug("The binding does not parse this message yet, contact authors if you want it to");
-        return;
     }
 
     /**
      * @param data
      */
     void parseHeartbeat(JsonObject data) {
-        logger.debug("Got heartbeat with data: {}", data.toString());
         logger.debug("The binding does not parse this message yet, contact authors if you want it to");
-        return;
     }
 
     /**
      * @param data
      */
     void parseReadAck(JsonObject data) {
-        logger.debug("Got read_ack with data: {}", data.toString());
         logger.debug("The binding does not parse this message yet, contact authors if you want it to");
-        return;
     }
 
     /**
      * @param data
      */
     void parseWriteAck(JsonObject data) {
-        logger.debug("Got write_ack with data: {}", data.toString());
         logger.debug("The binding does not parse this message yet, contact authors if you want it to");
-        return;
     }
+
+    abstract void parseDefault(JsonObject data);
 
     /**
      * @param channelUID
@@ -193,7 +185,7 @@ public abstract class XiaomiDeviceBaseHandler extends BaseThingHandler implement
                 ThingStatus bridgeStatus = (bridge == null) ? null : bridge.getStatus();
                 if (bridgeStatus == ThingStatus.ONLINE) {
                     ThingStatus itemStatus = getThing().getStatus();
-                    boolean hasItemActivity = getXiaomiBridgeHandler().hasItemActivity(itemId, ONLINE_TIMEOUT);
+                    boolean hasItemActivity = getXiaomiBridgeHandler().hasItemActivity(itemId, ONLINE_TIMEOUT_MILLIS);
                     ThingStatus newStatus = hasItemActivity ? ThingStatus.ONLINE : ThingStatus.OFFLINE;
 
                     if (!newStatus.equals(itemStatus)) {

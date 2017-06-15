@@ -36,7 +36,7 @@ public class XiaomiSensorHtHandler extends XiaomiSensorBaseHandler {
         }
         if (data.get("voltage") != null) {
             Integer voltage = data.get("voltage").getAsInt();
-            updateState(CHANNEL_VOLTAGE, new DecimalType(voltage));
+            calculateBatteryLevelFromVoltage(voltage);
         }
     }
 }

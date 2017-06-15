@@ -13,10 +13,10 @@
 
 		<channels>
 			<channel id="motion" typeId="motion" />
-            <channel id="motionOffTimer" typeId="motionOffTimer" />
+			<channel id="motionOffTimer" typeId="motionOffTimer" />
 			<channel id="lastMotion" typeId="lastMotion" />
-			<channel id="voltage" typeId="voltage" />
-			<channel id="batteryLevel" typeId="batteryLevel" />
+			<channel id="batteryLevel" typeId="system.battery-level" />
+			<channel id="lowBattery" typeId="system.low-battery" />
 		</channels>
 
 		<config-description>
@@ -35,37 +35,19 @@
 		<state readOnly="true"></state>
 	</channel-type>
 
-    <channel-type id="motionOffTimer">
-        <item-type>Number</item-type>
-        <label>Motion Off Timer</label>
-        <description>Time in seconds, after which the Motion Switch is set to "OFF" (Default 120 sec, Min 5 sec)</description>
-        <category>Motion</category>
-        <state readOnly="false" min="5" pattern="%d sec" step="1"></state>
-    </channel-type>
+	<channel-type id="motionOffTimer">
+		<item-type>Number</item-type>
+		<label>Motion Off Timer</label>
+		<description>Time in seconds, after which the Motion Switch is set to "OFF" (Default 120 sec, Min 5 sec)</description>
+		<category>Motion</category>
+		<state readOnly="false" min="5" pattern="%d sec" step="1"></state>
+	</channel-type>
 
 	<channel-type id="lastMotion">
 		<item-type>DateTime</item-type>
 		<label>Last Activity (Date/Time)</label>
 		<description>Date/time when last motion was detected</description>
 		<state readOnly="true"></state>
-	</channel-type>
-
-	<channel-type id="voltage" advanced="true">
-		<item-type>Number</item-type>
-		<label>Battery Voltage</label>
-		<category>Battery Voltage</category>
-		<state pattern="%d mV" readOnly="true"></state>
-	</channel-type>
-
-	<channel-type id="batteryLevel" advanced="true">
-		<kind>trigger</kind>
-		<label>Low Battery Level</label>
-		<description>Triggers LOW event when voltage is below 2800 mV</description>
-		<event>
-			<options>
-				<option value="LOW">low</option>
-			</options>
-		</event>
 	</channel-type>
 
 </thing:thing-descriptions>

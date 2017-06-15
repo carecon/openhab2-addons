@@ -22,16 +22,23 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.openhab.binding.mihome.internal.ColorUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
 /**
  * @author Patrick Boos - Initial contribution
- * @author Dimalo
+ * @author Dieter Schmidt
  */
 public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
 
-    private float lastBrightness = -1;
+    private static final int COLOR_TEMPERATURE_MAX = 6500;
+    private static final int COLOR_TEMPERATURE_MIN = 1700;
+
+    private Integer lastBrightness;
+
+    private final Logger logger = LoggerFactory.getLogger(XiaomiActorGatewayHandler.class);
 
     public XiaomiActorGatewayHandler(Thing thing) {
         super(thing);
@@ -42,55 +49,38 @@ public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
         switch (channelUID.getId()) {
             case CHANNEL_BRIGHTNESS:
                 if (command instanceof PercentType) {
-                    float newBright = ((PercentType) command).floatValue();
+                    int newBright = ((PercentType) command).intValue();
                     if (lastBrightness != newBright) {
                         lastBrightness = newBright;
-                        logger.debug("actual brigthness {}", lastBrightness);
-                        writeBridgeLightColor(getGatewayLightColor(), lastBrightness / 100);
+                        logger.debug("Set brigthness to {}", lastBrightness);
+                        writeBridgeLightColor(getGatewayLightColor(), lastBrightness);
                     } else {
                         logger.debug("Do not send this command, value {} already set", newBright);
                     }
+                    return;
                 } else if (command instanceof OnOffType) {
-                    if (lastBrightness == -1) {
-                        try {
-                            Iterator<Item> iter = linkRegistry
-                                    .getLinkedItems(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS)).iterator();
-                            while (iter.hasNext()) {
-                                Item item = iter.next();
-                                if (item.getState() instanceof PercentType) {
-                                    lastBrightness = Float.parseFloat(item.getState().toString());
-                                    logger.debug("last brightness value found: {}", lastBrightness);
-                                    break;
-                                }
-                            }
-                            lastBrightness = lastBrightness == -1 || lastBrightness == 0 ? 1 : lastBrightness;
-                            logger.debug("No dimmer value for brightness found, adjusted to {}", lastBrightness);
-                        } catch (NumberFormatException e) {
-                            lastBrightness = 1;
-                            logger.debug("No last brightness value found - assuming 100");
-                        }
-                    }
+                    restoreBrightnessFromItem();
 
-                    writeBridgeLightColor(getGatewayLightColor(), command == OnOffType.ON ? lastBrightness / 100 : 0);
-                } else {
-                    logger.error("Can't handle command {} on channel {}", command, channelUID);
+                    writeBridgeLightColor(getGatewayLightColor(), command == OnOffType.ON ? lastBrightness : 0);
+                    return;
                 }
                 break;
             case CHANNEL_COLOR:
                 if (command instanceof HSBType) {
                     writeBridgeLightColor(((HSBType) command).getRGB() & 0xffffff, getGatewayLightBrightness());
+                    return;
                 }
                 break;
             case CHANNEL_COLOR_TEMPERATURE:
                 if (command instanceof PercentType) {
                     PercentType colorTemperature = (PercentType) command;
-                    int kelvin = 48 * colorTemperature.intValue() + 1700;
+                    int kelvin = (COLOR_TEMPERATURE_MAX - COLOR_TEMPERATURE_MIN) / 100 * colorTemperature.intValue()
+                            + COLOR_TEMPERATURE_MIN;
                     int color = ColorUtil.getRGBFromK(kelvin);
                     writeBridgeLightColor(color, getGatewayLightBrightness());
                     updateState(CHANNEL_COLOR,
                             HSBType.fromRGB((color / 256 / 256) & 0xff, (color / 256) & 0xff, color & 0xff));
-                } else {
-                    logger.error("Can't handle command {} on channel {}", command, channelUID);
+                    return;
                 }
                 break;
             case CHANNEL_GATEWAY_SOUND:
@@ -103,12 +93,10 @@ public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
                     } else {
                         state = volumeItem.getState();
                     }
-                    int volume = (state instanceof DecimalType && state != null) ? ((DecimalType) state).intValue()
-                            : 50;
+                    int volume = state instanceof DecimalType ? ((DecimalType) state).intValue() : 50;
                     writeBridgeRingtone(((DecimalType) command).intValue(), volume);
                     updateState(CHANNEL_GATEWAY_SOUND_SWITCH, OnOffType.ON);
-                } else {
-                    logger.error("Can't handle command {} on channel {}", command, channelUID);
+                    return;
                 }
                 break;
             case CHANNEL_GATEWAY_SOUND_SWITCH:
@@ -116,26 +104,61 @@ public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
                     if (((OnOffType) command) == OnOffType.OFF) {
                         stopRingtone();
                     }
-                } else {
-                    logger.error("Can't handle command {} on channel {}", command, channelUID);
+                    return;
                 }
                 break;
             case CHANNEL_GATEWAY_VOLUME:
                 // nothing to do, just suppress error
-                break;
-            default:
-                logger.error("Can't handle command {} on channel {}", command, channelUID);
-                break;
+                return;
+        }
+        // Only gets here, if no condition was met
+        logger.warn("Can't handle command {} on channel {}", command, channelUID);
+    }
+
+    private void restoreBrightnessFromItem() {
+        if (lastBrightness == null) {
+            try {
+                Iterator<Item> iter = linkRegistry
+                        .getLinkedItems(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS)).iterator();
+                while (iter.hasNext()) {
+                    Item item = iter.next();
+                    if (item.getState() instanceof PercentType) {
+                        lastBrightness = Integer.parseInt(item.getState().toString());
+                        logger.debug("last brightness value found: {}", lastBrightness);
+                        break;
+                    }
+                }
+                lastBrightness = lastBrightness == null || lastBrightness == 0 ? 100 : lastBrightness;
+                logger.debug("No dimmer value for brightness found, adjusted to {}", lastBrightness);
+            } catch (NumberFormatException e) {
+                lastBrightness = 100;
+                logger.debug("No last brightness value found - assuming 100");
+            }
         }
     }
 
     @Override
     void parseReport(JsonObject data) {
-        parseHeartbeat(data);
+        parseDefault(data);
     }
 
     @Override
     void parseHeartbeat(JsonObject data) {
+        parseDefault(data);
+    }
+
+    @Override
+    void parseReadAck(JsonObject data) {
+        parseDefault(data);
+    }
+
+    @Override
+    void parseWriteAck(JsonObject data) {
+        parseDefault(data);
+    }
+
+    @Override
+    void parseDefault(JsonObject data) {
         if (data.has("rgb")) {
             long rgb = data.get("rgb").getAsLong();
             updateState(CHANNEL_BRIGHTNESS, new PercentType((int) (((rgb >> 24) & 0xff))));
@@ -148,16 +171,6 @@ public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
         }
     }
 
-    @Override
-    void parseReadAck(JsonObject data) {
-        parseHeartbeat(data);
-    }
-
-    @Override
-    void parseWriteAck(JsonObject data) {
-        parseHeartbeat(data);
-    }
-
     private int getGatewayLightColor() {
         Item item = getItemInChannel(CHANNEL_COLOR);
         if (item == null) {
@@ -165,34 +178,34 @@ public class XiaomiActorGatewayHandler extends XiaomiActorBaseHandler {
         }
 
         State state = item.getState();
-        if (state != null && state instanceof HSBType) {
+        if (state instanceof HSBType) {
             return ((HSBType) state).getRGB() & 0xffffff;
         }
 
         return 0xffffff;
     }
 
-    private float getGatewayLightBrightness() {
+    private int getGatewayLightBrightness() {
         Item item = getItemInChannel(CHANNEL_BRIGHTNESS);
         if (item == null) {
-            return 1f;
+            return 100;
         }
 
         State state = item.getState();
         if (state == null) {
-            return 1f;
+            return 100;
         } else if (state instanceof PercentType) {
             PercentType brightness = (PercentType) state;
-            return brightness.floatValue() / 100;
+            return brightness.intValue();
         } else if (state instanceof OnOffType) {
-            return state == OnOffType.ON ? 1f : 0f;
+            return state == OnOffType.ON ? 100 : 0;
         }
 
-        return 1f;
+        return 100;
     }
 
-    private void writeBridgeLightColor(int color, float brightness) {
-        long brightnessInt = (int) (brightness * 100) << 24;
+    private void writeBridgeLightColor(int color, int brightness) {
+        long brightnessInt = brightness << 24;
         writeBridgeLightColor((color & 0xffffff) | brightnessInt & 0xff000000);
     }
 

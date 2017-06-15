@@ -8,7 +8,15 @@
  */
 package org.openhab.binding.mihome.internal;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -18,26 +26,50 @@ import org.slf4j.LoggerFactory;
 /**
  * Encrypts communication between openhab & xiaomi bridge (required by xiaomi).
  *
- * @author Ondřej Pečta - 29. 12. 2016
+ * @author Ondřej Pečta - 29. 12. 2016 - Contribution to Xiaomi MiHome Binding for OH 1.x
+ * @author Dieter Schmidt
  */
 public class EncryptionHelper {
-
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     protected static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
     protected static final byte[] IV = parseHexBinary("17996D093D28DDB3BA695A2E6F58562E");
 
-    public static String encrypt(String text, String key) throws Exception {
+    private static final Logger logger = LoggerFactory.getLogger(EncryptionHelper.class);
+
+    public static String encrypt(String text, String key) {
         return encrypt(text, key, IV);
     }
 
-    public static String encrypt(String text, String key, byte[] iv) throws Exception {
+    public static String encrypt(String text, String key, byte[] iv) {
         IvParameterSpec vector = new IvParameterSpec(iv);
-        Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
-        SecretKeySpec keySpec = new SecretKeySpec(key.getBytes("UTF8"), "AES");
-        cipher.init(Cipher.ENCRYPT_MODE, keySpec, vector);
-        byte[] encrypted = cipher.doFinal(text.getBytes());
-        return bytesToHex(encrypted);
+        Cipher cipher;
+        try {
+            cipher = Cipher.getInstance("AES/CBC/NoPadding");
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            logger.warn("Failed to construct Cipher");
+            return "";
+        }
+        SecretKeySpec keySpec;
+        try {
+            keySpec = new SecretKeySpec(key.getBytes("UTF8"), "AES");
+        } catch (UnsupportedEncodingException e) {
+            logger.warn("Failed to construct SecretKeySpec");
+            return "";
+        }
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec, vector);
+        } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
+            logger.warn("Failed to init Cipher");
+            return "";
+        }
+        byte[] encrypted;
+        try {
+            encrypted = cipher.doFinal(text.getBytes());
+            return bytesToHex(encrypted);
+        } catch (IllegalBlockSizeException | BadPaddingException e) {
+            logger.warn("Failed to finally encrypt");
+            return "";
+        }
     }
 
     public static byte[] parseHexBinary(String s) {

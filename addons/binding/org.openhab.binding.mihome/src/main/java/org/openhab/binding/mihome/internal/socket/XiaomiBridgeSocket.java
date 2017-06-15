@@ -12,13 +12,18 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Takes care of the multicast communication with the bridge.
  *
- * @author Dimalo
+ * @author Dieter Schmidt
  *
  */
 public class XiaomiBridgeSocket extends XiaomiSocket {
+
+    private static final Logger logger = LoggerFactory.getLogger(XiaomiBridgeSocket.class);
 
     public XiaomiBridgeSocket(int port) {
         super(port);
@@ -45,7 +50,7 @@ public class XiaomiBridgeSocket extends XiaomiSocket {
         socketReceiveThread = new ReceiverThread();
         socketReceiveThread.start();
         if (socket != null) {
-            openSockets.add(this);
+            openSockets.put(port, this);
         }
     }
 }

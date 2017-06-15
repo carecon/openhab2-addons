@@ -3,16 +3,17 @@
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-	<thing-type id="ctrl_neutral1">
+	<thing-type id="natgas">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="bridge" />
 		</supported-bridge-type-refs>
 
-		<label>Xiaomi Aqara 1 Channel Wall Switch</label>
-		<description>Mains powered Aqara Switch with 1 controllable Channel</description>
+		<label>Xiaomi Gas Sensor</label>
+		<description>New, yet unconfirmed device</description>
 
 		<channels>
-			<channel id="ch1" typeId="sw1-btn" />
+			<channel id="alarm" typeId="gas_alarm"></channel>
+			<channel id="status" typeId="status-string"></channel>
 		</channels>
 
 		<config-description>
@@ -23,4 +24,18 @@
 			</parameter>
 		</config-description>
 	</thing-type>
+
+	<channel-type id="gas_alarm">
+		<item-type>Switch</item-type>
+		<label>Gas detected</label>
+		<category>Gas</category>
+		<state readOnly="true"></state>
+	</channel-type>
+
+	<channel-type id="status-string">
+		<item-type>String</item-type>
+		<label>Status String</label>
+		<state readOnly="true"></state>
+	</channel-type>
+
 </thing:thing-descriptions>

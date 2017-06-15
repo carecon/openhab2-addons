@@ -12,10 +12,12 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.openhab.binding.mihome.handler.XiaomiBridgeHandler;
+import org.openhab.binding.mihome.internal.discovery.XiaomiBridgeDiscoveryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +29,7 @@ import com.google.gson.JsonParser;
  *
  *
  * @author Patrick Boos - Initial contribution
- * @author Dimalo - JavaDoc and clean code
+ * @author Dieter Schmidt - JavaDoc and clean code
  *
  */
 public abstract class XiaomiSocket {
@@ -40,9 +42,9 @@ public abstract class XiaomiSocket {
     private static List<XiaomiSocketListener> listeners = new CopyOnWriteArrayList<>();
     private static final JsonParser PARSER = new JsonParser();
 
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(XiaomiSocket.class);
 
-    static ArrayList<XiaomiSocket> openSockets = new ArrayList<XiaomiSocket>();
+    static ConcurrentHashMap<Integer, XiaomiSocket> openSockets = new ConcurrentHashMap<Integer, XiaomiSocket>();
 
     int port = 0;
     DatagramSocket socket;
@@ -62,7 +64,6 @@ public abstract class XiaomiSocket {
      */
     public XiaomiSocket(int port) {
         this.port = port;
-
         setupSocket();
     }
 
@@ -78,6 +79,7 @@ public abstract class XiaomiSocket {
             }
             if (socket != null) {
                 socket.close();
+                openSockets.remove(port);
                 logger.debug("Socket closed");
                 socket = null;
             }
@@ -95,7 +97,7 @@ public abstract class XiaomiSocket {
             setupSocket();
         }
         if (!listeners.contains(listener)) {
-            logger.trace("Adding socket listener {}", listener.toString());
+            logger.trace("Adding socket listener {}", listener);
             listeners.add(listener);
         }
     }
@@ -125,7 +127,7 @@ public abstract class XiaomiSocket {
         try {
             byte[] sendData = message.getBytes("UTF-8");
             DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, address, port);
-            logger.trace("Sending message: {} to {}", message, address.toString());
+            logger.trace("Sending message: {} to {}", message, address);
             socket.send(sendPacket);
         } catch (IOException e) {
             logger.error("Sending error", e);
@@ -142,7 +144,7 @@ public abstract class XiaomiSocket {
     /**
      * @return - a list of already open sockets
      */
-    public static ArrayList<XiaomiSocket> getOpenSockets() {
+    public static ConcurrentHashMap<Integer, XiaomiSocket> getOpenSockets() {
         return openSockets;
     }
 
@@ -150,7 +152,7 @@ public abstract class XiaomiSocket {
      * The thread, which waits for data on the {@link XiaomiSocket} and handles it, when received
      *
      * @author Patrick Boos - Initial contribution
-     * @author Dimalo - comments and synchronized block for callback instead of copy
+     * @author Dieter Schmidt - comments and synchronized block for callback instead of copy
      *
      */
     class ReceiverThread extends Thread {
@@ -173,9 +175,11 @@ public abstract class XiaomiSocket {
                 while (true) {
                     logger.trace("Thread waiting for data on port {}", port);
                     socket.receive(dgram);
+                    InetAddress address = dgram.getAddress();
+                    logger.debug("Received Datagram from Address {}", address.getHostAddress());
                     String sentence = new String(dgram.getData(), 0, dgram.getLength());
                     JsonObject message = PARSER.parse(sentence).getAsJsonObject();
-                    notifyAll(listeners, message);
+                    notifyAll(listeners, message, address);
                     logger.trace("Data received and notified {} listeners", listeners.size());
                 }
             } catch (IOException e) {
@@ -189,14 +193,23 @@ public abstract class XiaomiSocket {
         }
 
         /**
-         * Notifies all {@link XiaomiSocketListener} on the parent {@link XiaomiSocket}
+         * Notifies all {@link XiaomiSocketListener} on the parent {@link XiaomiSocket}. First checks for any matching
+         * {@link XiaomiBridgeHandler}, before passing to any {@link XiaomiBridgeDiscoveryService}.
          *
          * @param listeners - a list of all {@link XiaomiSocketListener} to notify
          * @param message - the data message as {@link JsonObject}
          */
-        synchronized void notifyAll(List<XiaomiSocketListener> listeners, JsonObject message) {
+        synchronized void notifyAll(List<XiaomiSocketListener> listeners, JsonObject message, InetAddress address) {
             for (XiaomiSocketListener listener : listeners) {
-                listener.onDataReceived(message);
+                if (listener instanceof XiaomiBridgeHandler && ((XiaomiBridgeHandler) listener).getHost().equals(address)) {
+                    listener.onDataReceived(message);
+                    return;
+                }
+            }
+            for (XiaomiSocketListener listener : listeners) {
+                if (listener instanceof XiaomiBridgeDiscoveryService) {
+                    listener.onDataReceived(message);
+                }
             }
         }
     }

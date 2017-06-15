@@ -35,13 +35,13 @@ import com.google.gson.JsonObject;
  */
 public class XiaomiItemDiscoveryService extends AbstractDiscoveryService implements XiaomiItemUpdateListener {
 
-    private static final int DISCOVERY_TIMEOUT = 10;
+    private static final int DISCOVERY_TIMEOUT_SEC = 10;
     private final XiaomiBridgeHandler xiaomiBridgeHandler;
 
-    private Logger logger = LoggerFactory.getLogger(XiaomiItemDiscoveryService.class);
+    private final Logger logger = LoggerFactory.getLogger(XiaomiItemDiscoveryService.class);
 
     public XiaomiItemDiscoveryService(XiaomiBridgeHandler xiaomiBridgeHandler) {
-        super(DISCOVERY_TIMEOUT);
+        super(DISCOVERY_TIMEOUT_SEC);
         this.xiaomiBridgeHandler = xiaomiBridgeHandler;
     }
 
@@ -82,7 +82,7 @@ public class XiaomiItemDiscoveryService extends AbstractDiscoveryService impleme
             public void run() {
                 discoveryEndedLock.release();
             }
-        }, DISCOVERY_TIMEOUT, TimeUnit.SECONDS);
+        }, DISCOVERY_TIMEOUT_SEC, TimeUnit.SECONDS);
         try {
             discoveryEndedLock.acquire();
         } catch (InterruptedException e) {
