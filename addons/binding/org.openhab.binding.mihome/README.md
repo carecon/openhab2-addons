@@ -169,16 +169,16 @@ when
 then
     var actionName = receivedEvent.getEvent()
     switch(actionName) {
-        case "CLICK": {
+        case "SHORT_PRESSED": {
             <ACTION>
         }
-        case "DOUBLE_CLICK": {
+        case "DOUBLE_PRESSED": {
             <ACTION>
         }
-        case "LONG_CLICK_PRESS": {
+        case "LONG_PRESSED": {
             <ACTION>
         }
-        case "LONG_CLICK_RELEASE": {
+        case "LONG_RELEASED": {
             <ACTION>
         }
     }
@@ -251,28 +251,28 @@ end
 
 rule "Xiaomi Aqara Battery Powered 1 Button Switch"
 when
-    Channel "mihome:86sw1:<ID>:ch1" triggered CLICK
+    Channel "mihome:86sw1:<ID>:ch1" triggered SHORT_PRESSED
 then
     <ACTION>
 end
 
 rule "Xiaomi Aqara Battery Powered 2 Button Switch"
 when
-    Channel "mihome:86sw2:<ID>:ch1" triggered CLICK
+    Channel "mihome:86sw2:<ID>:ch1" triggered SHORT_PRESSED
 then
     <ACTION>
 end
 
 rule "Xiaomi Aqara Battery Powered 2 Button Switch"
 when
-    Channel "mihome:86sw2:<ID>:ch2" triggered CLICK
+    Channel "mihome:86sw2:<ID>:ch2" triggered SHORT_PRESSED
 then
     <ACTION>
 end
 
 rule "Xiaomi Aqara Battery Powered 2 Button Switch"
 when
-    Channel "mihome:86sw2:<ID>:dual_ch" triggered BOTH_CLICK
+    Channel "mihome:86sw2:<ID>:dual_ch" triggered SHORT_PRESSED
 then
     <ACTION>
 end
