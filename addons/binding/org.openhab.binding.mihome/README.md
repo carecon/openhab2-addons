@@ -118,7 +118,7 @@ Number MotionSensor_Battery <battery> { channel="mihome:sensor_motion:<ID>:batte
 Switch MotionSensor_BatteryLow <energy> { channel="mihome:sensor_motion:<ID>:lowBattery" }
 
 // Xiaomi Plug
-Switch Plug_Switch <switch> { channel="mihome:sensor_plug:<ID>:powerOn" }
+Switch Plug_Switch <switch> { channel="mihome:sensor_plug:<ID>:power" }
 Switch Plug_Active <switch> { channel="mihome:sensor_plug:<ID>:inUse" }
 Number Plug_Power <energy> { channel="mihome:sensor_plug:<ID>:loadPower" }
 Number Plug_Consumption <line-incline> { channel="mihome:sensor_plug:<ID>:powerConsumed" }
