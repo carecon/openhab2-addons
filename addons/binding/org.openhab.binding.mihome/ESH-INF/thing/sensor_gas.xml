@@ -8,10 +8,9 @@
 			<bridge-type-ref id="bridge" />
 		</supported-bridge-type-refs>
 		<label>Xiaomi Gas Sensor</label>
-		<description>New, yet unconfirmed device</description>
 		<channels>
 			<channel id="alarm" typeId="gas_alarm"></channel>
-			<channel id="status" typeId="status-string"></channel>
+			<channel id="status" typeId="status"></channel>
 		</channels>
 		<config-description-ref uri="thing-type:mihome:device" />
 	</thing-type>
