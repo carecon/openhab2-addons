@@ -201,9 +201,11 @@ public abstract class XiaomiSocket {
          */
         synchronized void notifyAll(List<XiaomiSocketListener> listeners, JsonObject message, InetAddress address) {
             for (XiaomiSocketListener listener : listeners) {
-                if (listener instanceof XiaomiBridgeHandler && ((XiaomiBridgeHandler) listener).getHost().equals(address)) {
-                    listener.onDataReceived(message);
-                    return;
+                if (listener instanceof XiaomiBridgeHandler) {
+                    if (((XiaomiBridgeHandler) listener).getHost().equals(address)) {
+                        listener.onDataReceived(message);
+                        return;
+                    }
                 }
             }
             for (XiaomiSocketListener listener : listeners) {

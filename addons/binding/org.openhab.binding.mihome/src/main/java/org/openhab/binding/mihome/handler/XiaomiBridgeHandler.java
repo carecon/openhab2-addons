@@ -107,7 +107,7 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
             public void run() {
                 discoverItems();
             }
-        }, 100, TimeUnit.MILLISECONDS);
+        }, 1, TimeUnit.SECONDS);
     }
 
     @Override
@@ -244,7 +244,7 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
     }
 
     private void sendMessageToBridge(String message) {
-        logger.debug("Send to bridge: {}", message);
+        logger.debug("Send to bridge {}: {}", this.getThing().getUID(), message);
         socket.sendMessage(message, host, port);
     }
 
@@ -352,7 +352,7 @@ public class XiaomiBridgeHandler extends ConfigStatusBridgeHandler implements Xi
         }
     }
 
-    private void discoverItems() {
+    public void discoverItems() {
         if (System.currentTimeMillis() - lastDiscoveryTime > DISCOVERY_LOCK_TIME_MILLIS) {
             logger.debug("Triggered discovery");
             sendCommandToBridge("get_id_list");
