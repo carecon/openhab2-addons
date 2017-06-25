@@ -49,7 +49,7 @@ public class XiaomiBridgeDiscoveryService extends AbstractDiscoveryService imple
     @Override
     protected void startScan() {
         socket = (socket == null) ? new XiaomiDiscoverySocket() : socket;
-        logger.debug("Start scan");
+        logger.debug("Start scan for bridges");
         socket.registerListener(this);
         discoverGateways();
         waitUntilEnded();
@@ -89,7 +89,6 @@ public class XiaomiBridgeDiscoveryService extends AbstractDiscoveryService imple
     }
 
     private void discoverGateways() {
-        logger.debug("Discovering gateways");
         socket.sendMessage("{\"cmd\":\"whois\"}");
     }
 

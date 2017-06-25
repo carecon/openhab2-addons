@@ -7,26 +7,11 @@
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="bridge" />
 		</supported-bridge-type-refs>
-
-		<label>Xiaomi Mi Smart Curtain</label>
-		<description>Allows you to control the curtain (open/close/stop/auto) and read/write the current status of it.</description>
-
+		<label>Xiaomi Aqara Intelligent Curtain Motor</label>
+		<description>Smart curtain controller for drawing back and forth fabric curtains. It has manual and remote operation modes.</description>
 		<channels>
 			<channel id="curtainControl" typeId="curtainControl" />
 		</channels>
-
-		<config-description>
-			<parameter name="itemId" type="text" readOnly="true">
-				<label>Item ID</label>
-				<description>An identifier for the item connected.</description>
-				<required>true</required>
-			</parameter>
-		</config-description>
+		<config-description-ref uri="thing-type:mihome:device" />
 	</thing-type>
-
-	<channel-type id="curtainControl">
-		<item-type>Rollershutter</item-type>
-		<label>Curtain</label>
-		<category>Blinds</category>
-	</channel-type>
 </thing:thing-descriptions>

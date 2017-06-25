@@ -57,7 +57,7 @@ public class XiaomiGatewayBindingConstants {
     public static final String CHANNEL_OPEN_ALARM = "isOpenAlarm";
     public static final String CHANNEL_OPEN_ALARM_TIMER = "isOpenAlarmTimer";
     // plug
-    public static final String CHANNEL_POWER_ON = "powerOn";
+    public static final String CHANNEL_POWER_ON = "power";
     public static final String CHANNEL_IN_USE = "inUse";
     public static final String CHANNEL_LOAD_POWER = "loadPower";
     public static final String CHANNEL_POWER_CONSUMED = "powerConsumed";
@@ -91,7 +91,6 @@ public class XiaomiGatewayBindingConstants {
     public static final String HOST = "ipAddress";
     public static final String PORT = "port";
     public static final String TOKEN = "token";
-    public static final String POLLING_INTERVAL = "pollingInterval";
 
     // Item config properties
     public static final String ITEM_ID = "itemId";

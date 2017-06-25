@@ -118,7 +118,7 @@ Number MotionSensor_Battery <battery> { channel="mihome:sensor_motion:<ID>:batte
 Switch MotionSensor_BatteryLow <energy> { channel="mihome:sensor_motion:<ID>:lowBattery" }
 
 // Xiaomi Plug
-Switch Plug_Switch <switch> { channel="mihome:sensor_plug:<ID>:powerOn" }
+Switch Plug_Switch <switch> { channel="mihome:sensor_plug:<ID>:power" }
 Switch Plug_Active <switch> { channel="mihome:sensor_plug:<ID>:inUse" }
 Number Plug_Power <energy> { channel="mihome:sensor_plug:<ID>:loadPower" }
 Number Plug_Consumption <line-incline> { channel="mihome:sensor_plug:<ID>:powerConsumed" }
@@ -169,16 +169,16 @@ when
 then
     var actionName = receivedEvent.getEvent()
     switch(actionName) {
-        case "CLICK": {
+        case "SHORT_PRESSED": {
             <ACTION>
         }
-        case "DOUBLE_CLICK": {
+        case "DOUBLE_PRESSED": {
             <ACTION>
         }
-        case "LONG_CLICK_PRESS": {
+        case "LONG_PRESSED": {
             <ACTION>
         }
-        case "LONG_CLICK_RELEASE": {
+        case "LONG_RELEASED": {
             <ACTION>
         }
     }
@@ -251,28 +251,28 @@ end
 
 rule "Xiaomi Aqara Battery Powered 1 Button Switch"
 when
-    Channel "mihome:86sw1:<ID>:ch1" triggered CLICK
+    Channel "mihome:86sw1:<ID>:ch1" triggered SHORT_PRESSED
 then
     <ACTION>
 end
 
 rule "Xiaomi Aqara Battery Powered 2 Button Switch"
 when
-    Channel "mihome:86sw2:<ID>:ch1" triggered CLICK
+    Channel "mihome:86sw2:<ID>:ch1" triggered SHORT_PRESSED
 then
     <ACTION>
 end
 
 rule "Xiaomi Aqara Battery Powered 2 Button Switch"
 when
-    Channel "mihome:86sw2:<ID>:ch2" triggered CLICK
+    Channel "mihome:86sw2:<ID>:ch2" triggered SHORT_PRESSED
 then
     <ACTION>
 end
 
 rule "Xiaomi Aqara Battery Powered 2 Button Switch"
 when
-    Channel "mihome:86sw2:<ID>:dual_ch" triggered BOTH_CLICK
+    Channel "mihome:86sw2:<ID>:dual_ch" triggered SHORT_PRESSED
 then
     <ACTION>
 end
