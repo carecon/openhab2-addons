@@ -20,15 +20,15 @@ import com.google.gson.JsonObject;
  */
 public class XiaomiSensorSwitchHandler extends XiaomiSensorBaseHandler {
 
-	public XiaomiSensorSwitchHandler(Thing thing) {
-		super(thing);
-	}
+    public XiaomiSensorSwitchHandler(Thing thing) {
+        super(thing);
+    }
 
-	@Override
-	void parseReport(JsonObject data) {
-		if (data.has("status")) {
-			triggerChannel(CHANNEL_BUTTON,
-					ChannelMapper.getChannelEvent(data.get("status").getAsString().toUpperCase()));
-		}
-	}
+    @Override
+    void parseReport(JsonObject data) {
+        if (data.has("status")) {
+            triggerChannel(CHANNEL_BUTTON,
+                    ChannelMapper.getChannelEvent(data.get("status").getAsString().toUpperCase()));
+        }
+    }
 }
